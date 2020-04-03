@@ -2,6 +2,7 @@
 layout: post
 title: "4-bit random numbers"
 author: Tom Madams
+mathjax: true
 ---
 
 While I accept that a toy 4-bit microprocessor probably isn't a subject that warrant multiple posts, I'm unable to resist. Apologies.
@@ -24,16 +25,16 @@ For one of the "games" I wrote, I needed a random number generator. Unfortunatel
 
 A bit of searching around led inevitably to Wikipedia and [multiply-with-carry](http://en.wikipedia.org/wiki/Multiply-with-carry_(random_number_generator)) random number generators. I went with lag-1 MWC for simplicity, which is defined as:
 
-$latex x_n = (ax_{n-1}+c_{n-1})\,mod\,b $
-$latex c_n = \lfloor\frac{ax_{n-1}+c_{n-1}}{b}\rfloor $
+$$x_n = (ax_{n-1}+c_{n-1})\,mod\,b$$
+$$c_n = \lfloor\frac{ax_{n-1}+c_{n-1}}{b}\rfloor$$
 
 Being limited to 4-bit numbers, a natural choice for _b_ was 16 and a quick exhaustive search for _a_ showed that a value of 15 yielded the sequence with the longest period (around 120) and distribution of numbers that wasn't wholly intolerable (it at least covered all the digits). As an added bonus, using these values for _a_ and _b_ meant that the multiplications and divisions could be done away with completely:
 
-$latex x_n = (15x_{n-1}+c_{n-1})\,mod\,16 $
-$latex x_n = 1 + \tilde{x}_{n-1} + c_{n-1} $
+$$x_n = (15x_{n-1}+c_{n-1})\,mod\,16$$
+$$x_n = 1 + \tilde{x}_{n-1} + c_{n-1}$$
 
-$latex c_n = \lfloor\frac{15x_{n-1}+c_{n-1}}{16}\rfloor $
-$latex c_n = \begin{cases} x_{n-1}-1, & c_{n-1} < x_{n-1} \\ x_{n-1}, & otherwise \end{cases} $
+$$c_n = \lfloor\frac{15x_{n-1}+c_{n-1}}{16}\rfloor$$
+$$c_n = \begin{cases} x_{n-1}-1, & c_{n-1} < x_{n-1} \\ x_{n-1}, & otherwise \end{cases}$$
 
 That crappy little tilde above the _x_ is meant to represent a bitwise _not_ - my LaTeX is pretty weak I'm afraid.
 

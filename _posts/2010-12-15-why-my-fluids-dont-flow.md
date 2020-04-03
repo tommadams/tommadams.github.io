@@ -2,6 +2,7 @@
 layout: post
 title: "Why my fluids don't flow"
 author: Tom Madams
+mathjax: true
 ---
 
 I have an unopened copy of [Digital Color Management](http://www.amazon.com/Digital-Color-Management-Wiley--Technology/dp/047051244X/ref=sr_1_1?ie=UTF8&qid=1292301078&sr=8-1) sitting on my desk. It's staring at me accusingly.
@@ -16,17 +17,14 @@ I had originally intended to write an introduction to SPH, but soon realised tha
 
 The first paper I tried implementing was [Particle-Based Fluid Simulation for Interactive Applications](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.2.7720&rep=rep1&type=pdf) by Müller et. al. It serves as a great introduction to SPH with a very good discussion of kernel weighting functions, but I had real difficulty getting decent results. In the paper pressure, viscosity and surface tension forces are modeled using following equations:
 
-$latex \textbf{f}_i^{pressure} = -\sum_{j}m_j\frac{p_j}{\rho_j}\nabla{W(\textbf{r}_i-\textbf{r}_j, h)} &s=1$
+$$\textbf{f}_i^{pressure} = -\sum_{j}m_j\frac{p_j}{\rho_j}\nabla{W(\textbf{r}_i-\textbf{r}_j, h)} \\
+\textbf{f}_i^{viscosity} = \mu\sum_{j}m_j\frac{\textbf{v}_j-\textbf{v}_i}{\rho_j}\nabla^2W(\textbf{r}_i-\textbf{r}_j, h) \\
+c_S(\textbf{r}) = \sum_jm_j\frac{1}{\rho_j}W(\textbf{r}-\textbf{r}_j, h) \\
+\textbf{f}_i^{surface} = -\sigma\nabla^2c_S\frac{\textbf{n}}{|\textbf{n}|}$$
 
-$latex \textbf{f}_i^{viscosity} = \mu\sum_{j}m_j\frac{\textbf{v}_j-\textbf{v}_i}{\rho_j}\nabla^2W(\textbf{r}_i-\textbf{r}_j, h) &s=1$
+The pressure for each particle is calculated from its density using:<br>
 
-$latex c_S(\textbf{r}) = \sum_jm_j\frac{1}{\rho_j}W(\textbf{r}-\textbf{r}_j, h) &s=1$
-
-$latex \textbf{f}_i^{surface} = -\sigma\nabla^2c_S\frac{\textbf{n}}{|\textbf{n}|} &s=1$
-
-The pressure for each particle is calculated from its density using:
-
-$latex P_i = k(\rho_i - \rho_0) &s=1$  where $latex \rho_0 $ is the some non-zero rest density.
+$$P_i = k(\rho_i - \rho_0)$$ where $\rho_0 $ is the some non-zero rest density.
 
 The first problem I encountered was with the pressure model; it only acts as a repulsive force if the particle density is greater than the rest density. If a particle has only a small number of neighbours, the pressure force will attract them to form a cluster of particles all sharing the same space. In my experiments, I often found large numbers of clusters of three or four particles all in the same position. It took me a while to figure out what was going on because Müller states that the value of the rest density "mathematically has no effect on pressure forces", which is only true given a fairly uniform density of particles far from the boundary.
 
@@ -46,15 +44,12 @@ On the up side, I did create possibly my best ever bug when implementing the sur
 {%- include vimeo.html id=17241730 -%}
 </div>
 
-The next paper I tried was [Particle-based Viscoelastic Fluid Simulation](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.59.9379&rep=rep1&type=pdf) by Clavet et al. I actually had a lot of success with their paper and had a working implementation of their basic model up and running in less than two hours. Albeit minus the viscoelasticity. In addition to the pressure force described in Müller's paper, they model "near" density and pressure, which are similar to their regular counterparts but with a zero rest density and different kernel functions:
+The next paper I tried was [Particle-based Viscoelastic Fluid Simulation](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.59.9379&rep=rep1&type=pdf) by Clavet et al. I actually had a lot of success with their paper and had a working implementation of their basic model up and running in less than two hours. Albeit minus the viscoelasticity. In addition to the pressure force described in Müller's paper, they model "near" density and pressure, which are similar to their regular counterparts but with a zero rest density and different kernel functions:<br>
 
-$latex P_i = k(\rho_i - \rho_0) &s=1$
-
-$latex P_i^{near} = k^{near} \rho_i^{near} &s=1$
-
-$latex \rho_i = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 2 &s=1$
-
-$latex \rho_i^{near} = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 3 &s=1$
+$$P_i = k(\rho_i - \rho_0) \\
+P_i^{near} = k^{near} \rho_i^{near} \\
+\rho_i = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 2 \\
+\rho_i^{near} = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 3$$
 
 This near pressure ensures a minimum spacing and as an added bonus performs a decent job of modelling surface tension too. This is the first simulation I ran using their pressure and viscosity forces:
 
@@ -62,19 +57,18 @@ This near pressure ensures a minimum spacing and as an added bonus performs a de
 {%- include vimeo.html id=17253237 -%}
 </div>
 
-Although initial results were promising, I struggled when tweaking the parameters to find a good balance between a fluid that was too compressible and one that was too viscous. Also, what I really wanted was to do multiphase fluid simulation. This wasn't covered in the viscoelastic paper, so my next port of call was [Weakly compressible SPH for free surface flows](cg.informatik.uni-freiburg.de/publications/sphSCA2007.pdf) by Becker et al. In this paper, surface tension is modeled as:
+Although initial results were promising, I struggled when tweaking the parameters to find a good balance between a fluid that was too compressible and one that was too viscous. Also, what I really wanted was to do multiphase fluid simulation. This wasn't covered in the viscoelastic paper, so my next port of call was [Weakly compressible SPH for free surface flows](cg.informatik.uni-freiburg.de/publications/sphSCA2007.pdf) by Becker et al. In this paper, surface tension is modeled as:<br>
 
-$latex \textbf{f}_i^{surface} = -\frac{\kappa}{m_i} \sum_j m_j W(\textbf{r}_i-\textbf{r}_j) (\textbf{r}_i - \textbf{r}_j) &s=1$
+$$\textbf{f}_i^{surface} = -\frac{\kappa}{m_i} \sum_j m_j W(\textbf{r}_i-\textbf{r}_j) (\textbf{r}_i - \textbf{r}_j)$$<br>
 
-They also discuss using Tait's equation for the pressure force, rather than one based on the ideal gas law:
+They also discuss using Tait's equation for the pressure force, rather than one based on the ideal gas law:<br>
 
-$latex P_i = B((\frac{\rho_i}{\rho_0})^\gamma - 1) &s=1$  with $latex \gamma = 7 $
+$P_i = B((\frac{\rho_i}{\rho_0})^\gamma - 1)$  with $\gamma = 7$
 
-I gave that a shot, but the large exponent caused the simulation to explode unless I used a _really_ small time step. Instead, I found that modifying the pressure forces from the viscoelastic paper slightly gave a much less compressible fluid without the requirement for a tiny time step:
+I gave that a shot, but the large exponent caused the simulation to explode unless I used a _really_ small time step. Instead, I found that modifying the pressure forces from the viscoelastic paper slightly gave a much less compressible fluid without the requirement for a tiny time step:<br>
 
-$latex \rho_i = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 3 &s=1$
-
-$latex \rho_i^{near} = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 4 &s=1$
+$$\rho_i = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 3 \\
+\rho_i^{near} = \sum_j (1 - \frac{|\textbf{r}_i - \textbf{r}_j|}{h}) ^ 4 $$
 
 Here's one of my more successful runs:
 

@@ -2,6 +2,7 @@
 layout: post
 title: "Realtime global illumination"
 author: Tom Madams
+mathjax: true
 ---
 
 I've had an idea floating around in my head for several months now, but evening classes, a hard drive failure, then a GPU failure prevented me from doing much about it until this weekend. First, a couple of screenshots of what I'll be talking about.
@@ -18,8 +19,8 @@ The basic idea is simple and is split into two phases.
 
 A one-time scene compilation phase:
  - Split all surfaces in the scene into roughly equal sized patches.
- - For each patch _i_, build a list of all other patches visible from _i_ along with the form factor between patches _i_ and _j_:
-          $latex F_{ij} = \frac{cos \phi_i \, cos \phi_j}{\pi \, |r|^2} \, A_j &s=2$
+ - For each patch _i_, build a list of all other patches visible from _i_ along with the form factor between patches _i_ and _j_:<br>
+          $$F_{ij} = \frac{cos \phi_i \, cos \phi_j}{\pi \, |r|^2} \, A_j$$<br>
           where:<br>
           _F<sub>ij</sub>_ is the form factor between patches _i_ and _j_<br>
           _A<sub>j</sub>_ is the area of patch _j_<br>
@@ -30,7 +31,7 @@ A one-time scene compilation phase:
 And a per-frame lighting phase:
  - For each patch _i_, calculate the direct illumination.
  - For each patch _i_, calculate single-bounce indirect illumination from all visible patches:
-        $latex I_i = \sum_j D_j \, F_{ij} &s=1$
+        $$I_i = \sum_j D_j \, F_{ij}$$
         where:<br>
         _I<sub>j</sub>_ is the single-bounce indirect illumination for patch _i_<br>
         _D<sub>j</sub>_ is the direct illumination for patch _j_<br>

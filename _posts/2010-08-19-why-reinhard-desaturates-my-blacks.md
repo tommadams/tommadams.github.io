@@ -2,6 +2,7 @@
 layout: post
 title: "Why Reinhard desaturates my blacks"
 author: Tom Madams
+mathjax: true
 ---
 
 I'm doing it wrong.
@@ -15,8 +16,8 @@ In order to explain why, I've pinched the HDR photo from John's blog and it's ac
 Shown below are the source images (the photo is exposed at +4 stops). Click through for less tiny versions:
 [![alt text](/assets/imgs/2010/08/linear_ramps.png)](/assets/imgs/2010/08/linear_ramps.png)[![alt text](/assets/imgs/2010/08/linear_house.png)](/assets/imgs/2010/08/linear_house.png)
 
-In both his blog and GDC presentation, John describes a simplified version of Reinhard's operator as applying the following function to each colour channel:
-$latex F(x) = \frac{x}{x+1} &s=2$
+In both his blog and GDC presentation, John describes a simplified version of Reinhard's operator as applying the following function to each colour channel:<br>
+$$F(x) = \frac{x}{x+1}$$
 
 Let's do that to our test image and see what happens:
 [![alt text](/assets/imgs/2010/08/simple_reinhard_rgb_ramps.png)](/assets/imgs/2010/08/simple_reinhard_rgb_ramps.png)[![alt text](/assets/imgs/2010/08/simple_reinhard_rgb_house1.png)](/assets/imgs/2010/08/simple_reinhard_rgb_house1.png)
@@ -79,18 +80,18 @@ This yields the same results as the conversion to and from xyY and has fewer mag
 Now lets see what happens when we apply the same _x / (x+1)_ to each pixel's _luminance_:
 [![alt text](/assets/imgs/2010/08/simple_reinhard_luminance_ramps.png)](/assets/imgs/2010/08/simple_reinhard_luminance_ramps.png)[![alt text](/assets/imgs/2010/08/simple_reinhard_luminance_house.png)](/assets/imgs/2010/08/simple_reinhard_luminance_house.png)
 
-Balls. This has preserved the colours, but at a terrible price; now all the whites are gone. The reason is that by preserving the hue and saturation, the operator prevents any colours being blown out to a full white. Luckily, Reinhard's got our back. In his paper, the preceding operation is written as:
-$latex L_d(x, y) = \frac{L(x,y)}{1 + L(x,y)} &s=2$
+Balls. This has preserved the colours, but at a terrible price; now all the whites are gone. The reason is that by preserving the hue and saturation, the operator prevents any colours being blown out to a full white. Luckily, Reinhard's got our back. In his paper, the preceding operation is written as:<br>
+$$L_d(x, y) = \frac{L(x,y)}{1 + L(x,y)}$$
 
 Almost immediately after this equation, Reinhard goes on to say:
 > "This formulation is guaranteed to bring all luminances within displayable range. However, as mentioned in the previous section, this is not always desirable"
 
-He then presents the following:
-$latex L_d(x, y) = \frac{L(x,y)\left(1+\frac{L(x,y)}{L^2_{white}}\right)}{1 + L(x,y)} &s=2$
+He then presents the following:<br>
+$$L_d(x, y) = \frac{L(x,y)\left(1+\frac{L(x,y)}{L^2_{white}}\right)}{1 + L(x,y)}$$
 
-Here, $latex L_{white}$ is the smallest luminance that will be mapped to 1.0.
+Here, $L_{white}$ is the smallest luminance that will be mapped to 1.0.
 
-Let's give that a whirl, with an $latex L_{white}$ of 4 for the colour ramps and an $latex L_{white}$ of 2.4 for the condo photo:
+Let's give that a whirl, with an $L_{white}$ of 4 for the colour ramps and an $L_{white}$ of 2.4 for the condo photo:
 [![alt text](/assets/imgs/2010/08/full_reinhard_luminance_ramps.png)](/assets/imgs/2010/08/full_reinhard_luminance_ramps.png)[![alt text](/assets/imgs/2010/08/full_reinhard_luminance_house.png)](/assets/imgs/2010/08/full_reinhard_luminance_house.png)
 
 Well that's much better than the previous effort; whether its better than John's results is up for debate. What I like about it is that because it mostly preserves the hues, so you haven't lost any information; if you want to crisp the blacks or desaturate the whites, you can do that in your final colour grade. If you're colour grading via a volume texture lookup, this is for free!
