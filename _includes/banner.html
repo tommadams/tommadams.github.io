@@ -1,0 +1,8 @@
+<header class="banner" role="banner">
+  <h1><a href="{{ "/" | relative_url }}">{{ site.title | escape }}</a></h1>
+  <nav class="banner-nav">
+    {% for item in site.data.navigation %}
+      <a class="page-link" href="{{ item.link }}">{{ item.name }}</a>
+    {%- endfor -%}
+  </nav>
+</header>

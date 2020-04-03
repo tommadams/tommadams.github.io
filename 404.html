@@ -7,39 +7,33 @@
     {%- include head.html -%}
 
     <style type="text/css" media="screen">
-      .page-content {
-        bottom: 0;
+      .fof {
         text-align: center;
-      }
-
-      .welcome {
         display: flex;
         flex-grow: 1;
         flex-direction: column;
         justify-content: center;
-        height: 100%;
+      }
+
+      .fof > h1 {
+        margin-bottom: 30px;
+        font-size: 4em;
       }
     </style>
   </head>
 
   <body>
     <main class="page-content" aria-label="Content">
-      <div class="wrapper">
-        <div class="welcome">
-          <h1>I'm doing it wrong</h1><br>
-          <h3>more often than not</h3><br><br>
-
-          <div>
-            {% for item in site.data.navigation %}
-              <a href="{{ item.link }}">{{ item.name }}</a><br><br>
-            {% endfor %}
-          </div>
-        </div>
+      <div class="fof">
+        <h1>404</h1>
+        <p>Sorry, page not found :(</p>
       </div>
       <div class="signature-wrapper">
         {%- include signature.html -%}
       </div>
     </main>
+
+    {% include banner.html %}
   </body>
 </html>
 
