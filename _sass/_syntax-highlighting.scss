@@ -11,6 +11,8 @@
   @extend %vertical-rhythm;
 
   .highlighter-rouge & {
+    max-height: 80vh;
+    overflow: scroll;
   }
 
   .c     { color: #75715e; } // Comment
