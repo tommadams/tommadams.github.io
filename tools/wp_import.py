@@ -1,3 +1,9 @@
+"""Simple script to import my old blog posts from WordPress.
+
+This script is not comprehensive: several posts required manual clean up
+after, but it did 90% of the work.
+"""
+
 import argparse
 from datetime import datetime
 import os

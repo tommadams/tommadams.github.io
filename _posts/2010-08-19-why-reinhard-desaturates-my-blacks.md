@@ -17,7 +17,9 @@ Shown below are the source images (the photo is exposed at +4 stops). Click thro
 [![alt text](/assets/imgs/2010/08/linear_ramps.png)](/assets/imgs/2010/08/linear_ramps.png)[![alt text](/assets/imgs/2010/08/linear_house.png)](/assets/imgs/2010/08/linear_house.png)
 
 In both his blog and GDC presentation, John describes a simplified version of Reinhard's operator as applying the following function to each colour channel:<br>
+{% raw %}
 $$F(x) = \frac{x}{x+1}$$
+{% endraw %}
 
 Let's do that to our test image and see what happens:
 [![alt text](/assets/imgs/2010/08/simple_reinhard_rgb_ramps.png)](/assets/imgs/2010/08/simple_reinhard_rgb_ramps.png)[![alt text](/assets/imgs/2010/08/simple_reinhard_rgb_house1.png)](/assets/imgs/2010/08/simple_reinhard_rgb_house1.png)
@@ -81,13 +83,17 @@ Now lets see what happens when we apply the same _x / (x+1)_ to each pixel's _lu
 [![alt text](/assets/imgs/2010/08/simple_reinhard_luminance_ramps.png)](/assets/imgs/2010/08/simple_reinhard_luminance_ramps.png)[![alt text](/assets/imgs/2010/08/simple_reinhard_luminance_house.png)](/assets/imgs/2010/08/simple_reinhard_luminance_house.png)
 
 Balls. This has preserved the colours, but at a terrible price; now all the whites are gone. The reason is that by preserving the hue and saturation, the operator prevents any colours being blown out to a full white. Luckily, Reinhard's got our back. In his paper, the preceding operation is written as:<br>
+{% raw %}
 $$L_d(x, y) = \frac{L(x,y)}{1 + L(x,y)}$$
+{% endraw %}
 
 Almost immediately after this equation, Reinhard goes on to say:
 > "This formulation is guaranteed to bring all luminances within displayable range. However, as mentioned in the previous section, this is not always desirable"
 
 He then presents the following:<br>
+{% raw %}
 $$L_d(x, y) = \frac{L(x,y)\left(1+\frac{L(x,y)}{L^2_{white}}\right)}{1 + L(x,y)}$$
+{% endraw %}
 
 Here, $L_{white}$ is the smallest luminance that will be mapped to 1.0.
 

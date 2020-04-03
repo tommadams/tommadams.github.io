@@ -19,22 +19,26 @@ The basic idea is simple and is split into two phases.
 
 A one-time scene compilation phase:
  - Split all surfaces in the scene into roughly equal sized patches.
- - For each patch _i_, build a list of all other patches visible from _i_ along with the form factor between patches _i_ and _j_:<br>
-          $$F_{ij} = \frac{cos \phi_i \, cos \phi_j}{\pi \, |r|^2} \, A_j$$<br>
-          where:<br>
-          _F<sub>ij</sub>_ is the form factor between patches _i_ and _j_<br>
-          _A<sub>j</sub>_ is the area of patch _j_<br>
-          _r_ is the vector from _i_ to _j_<br>
-          _&Phi;<sub>i</sub>_ is the angle between _r_ and the normal of patch _i_<br>
-          _&Phi;<sub>j</sub>_ is the angle between _r_ and the normal of patch _j_<br>
+ - For each patch _i_, build a list of all other patches visible from _i_ along with the form factor between patches _i_ and _j_:
+{% raw %}
+   $$F_{ij} = \frac{cos \phi_i \, cos \phi_j}{\pi \, |r|^2} \, A_j$$
+{% endraw %}
+   where:<br>
+   _F<sub>ij</sub>_ is the form factor between patches _i_ and _j_<br>
+   _A<sub>j</sub>_ is the area of patch _j_<br>
+   _r_ is the vector from _i_ to _j_<br>
+   _&Phi;<sub>i</sub>_ is the angle between _r_ and the normal of patch _i_<br>
+   _&Phi;<sub>j</sub>_ is the angle between _r_ and the normal of patch _j_<br>
 
 And a per-frame lighting phase:
  - For each patch _i_, calculate the direct illumination.
  - For each patch _i_, calculate single-bounce indirect illumination from all visible patches:
-        $$I_i = \sum_j D_j \, F_{ij}$$
-        where:<br>
-        _I<sub>j</sub>_ is the single-bounce indirect illumination for patch _i_<br>
-        _D<sub>j</sub>_ is the direct illumination for patch _j_<br>
+{% raw %}
+   $$I_i = \sum_j D_j \, F_{ij}$$
+{% endraw %}
+   where:<br>
+   _I<sub>j</sub>_ is the single-bounce indirect illumination for patch _i_<br>
+   _D<sub>j</sub>_ is the direct illumination for patch _j_<br>
 
 So far, so [radiosity](http://freespace.virgin.net/hugo.elias/radiosity/radiosity.htm). If I understand Michal Iwanicki's [GDC presentation](http://miciwan.com/GDC2011/GDC2011_Mega_Meshes.pdf) correctly, this is similar to the lighting tech on Milo and Kate, only they additionally project the bounce lighting into SH.
 

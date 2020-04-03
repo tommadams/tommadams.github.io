@@ -5,8 +5,10 @@ author: Tom Madams
 mathjax: true
 ---
 
-In my [previous post](http://imdoingitwrong.wordpress.com/2011/01/31/light-attenuation/), I talked about the attenuation curve for a spherical light source:<br>
+In my [previous post](/2011/01/31/light-attenuation.html), I talked about the attenuation curve for a spherical light source:<br>
+{% raw %}
 $$f_{att} = \frac{1}{(\frac{d}{r} + 1)^2}$$
+{% endraw %}
 
 I had suggested applying a scale and bias to the result in order to limit a light's influence, which is a serviceable solution, but far from ideal. Unfortunately, applying such a bias causes the gradient of the curve to become non-zero at limit of the light's influence.
 
@@ -19,13 +21,17 @@ And after applying a scale and bias (shown in red):
 You can see that the gradient at the zero-crossing is close to, but not quite zero. This is problematic because the human eye is irritatingly sensitive to discontinuities in illumination gradients and we might easily end up with [Mach bands](http://en.wikipedia.org/wiki/Mach_bands).
 
 I was discussing this problem with a colleague of mine, Jerome Scholler, and he came up with an excellent suggestion - to transform _d_ in the attenuation equation by some function whose value tends to infinity as its input reaches our desired maximum distance of influence. My first thought was of using tan:<br>
+{% raw %}
 $$d' = 2.1tan(\frac{\pi d}{2d_{max}}) \\
 f_{att} = \frac{1}{(\frac{d'}{r} + 1)^2}$$
+{% endraw %}
 [![alt text](/assets/imgs/2011/02/attenuation_curve_tan2.png)](/assets/imgs/2011/02/attenuation_curve_tan2.png)
 
 That worked well, the resulting curve has roughly the same shape as the original, while also having both a gradient and value of zero at the desired maximum distance. It does have the disadvantage of using a trig function, which isn't so hot, so we went looking for something else. After a few minutes playing around we came up with the following rational function:<br>
+{% raw %}
 $$d' = \frac{d}{1-(\frac{d}{d_{max}})^2} \\
 f_{att} = \frac{1}{(\frac{d'}{r} + 1)^2}$$
+{% endraw %}
 [![alt text](/assets/imgs/2011/02/attenuation_curve_final2.png)](/assets/imgs/2011/02/attenuation_curve_final2.png)
 
 It's very similar to the tan version, but may run faster, depending on your hardware.

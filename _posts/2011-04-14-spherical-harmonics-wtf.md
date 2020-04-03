@@ -44,6 +44,7 @@ z = cos\theta$$
 {% endraw %}
 
 Then the first three bands of the SH basis are simply:
+{% raw %}
 $$Y^0_0(\theta, \phi) = \sqrt{\frac{1}{4\pi}} \\
 Y^{-1}_1(\theta, \phi) = -\sqrt{\frac{3}{4\pi}} y\\
 Y^0_1(\theta, \phi) = \sqrt{\frac{3}{4\pi}} z \\
@@ -54,11 +55,14 @@ Y^0_2(\theta, \phi) = \sqrt{\frac{5}{16\pi}} (3z^2-1) \\
 Y^1_2(\theta, \phi) = -\sqrt{\frac{15}{4\pi}} zx \\
 Y^2_2(\theta, \phi) = \sqrt{\frac{15}{16\pi}} (x^2-y^2) \\
 $$
+{% endraw %}
 
 Note the change in sign of odd _m_ harmonics, which is consistent with the above definitions of _x_, _y_, _z_ and _P_. In many sources the basis function constants are all positive, which can be explained by assuming that they're defined using the [Condon-Shortley phase](http://mathworld.wolfram.com/Condon-ShortleyPhase.html). _That_ took me a while to figure out.
 
 Projecting incident radiance _L_ into the SH basis is done using the following integral:
+{% raw %}
 $$L^m_l = \int^{2\pi}_0 \int^{\pi}_0 \, L(\theta, \phi) \, Y^m_l(\theta, \phi) \, sin(\theta) d\theta d\phi$$
+{% endraw %}
 
 This is actually a _spectacularly bad_ approximation for low numbers of SH bands. For example, here's Paul Debevec's [light probe](http://ict.debevec.org/~debevec/Probes/) of Grace cathedral:
 [![alt text](/assets/imgs/2015/04/grace_probe_original.png)](/assets/imgs/2015/04/grace_probe_original.png)
@@ -70,9 +74,12 @@ Wow.
 Fortunately, while spherical harmonics aren't generally good at representing _incident radiance_, they totally kick arse at representing _irradiance_. (Very roughly speaking, incident radiance is the the amount of light falling on a surface from a _particular_ direction, while irradiance is the total sum of light falling on a surface from _all_ directions.)
 
 In SH form the conversion from radiance _L_ to irradiance _E_ is marvelously simple:
+{% raw %}
 $$E^m_l = \hat{A}_l \, L^m_l$$
+{% endraw %}
 
 The definition of _A_ isn't exactly straight forward, but luckily smart people have already done the hard work for us:
+{% raw %}
 $$\hat{A}_0 = 3.141593 \\
 \hat{A}_1 = 2.094395 \\
 \hat{A}_2 = 0.785398 \\
@@ -80,11 +87,14 @@ $$\hat{A}_0 = 3.141593 \\
 \hat{A}_4 = -0.130900 \\
 \hat{A}_5 = 0 \\
 \hat{A}_6 = 0.049087$$
+{% endraw %}
 
 The fact that terms after 2 fall off very quickly is what makes it possible to approximate irradiance fairly accurately with only three bands.
 
 Given a set of spherical harmonic irradiance coefficients, the diffuse illumination for a particular direction is calculated by:
+{% raw %}
 $$E(\theta, \phi) = \sum_{l, m} \hat{A}_l \, L^m_l Y^m_l(\theta, \phi)$$
+{% endraw %}
 
 Condon-Shortley phase aside, something else that confused me were the results from [An Efficient Representation for Irradiance Environment Maps](http://www-graphics.stanford.edu/papers/envmap/). As far as I can tell, the gamma is not correct for some (possibly all) of the images in that paper, which made comparing results from my own code frustrating. The problems are compounded by the fact that the authors chose to apply some undefined tone mapping operator to some images, but not others.
 

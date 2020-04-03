@@ -5,8 +5,11 @@ author: Tom Madams
 mathjax: true
 ---
 
-The canonical equation for point light attenuation goes something like this:<br>
-$$f_{att} = \frac{1}{k_c + k_ld + k_qd^2}$$<br>
+The canonical equation for point light attenuation goes something like this:
+
+{% raw %}
+$$f_{att} = \frac{1}{k_c + k_ld + k_qd^2}$$
+{% endraw %}
 where:<br>
 _d_ = distance between the light and the surface being shaded<br>
 _kc_ = constant attenuation factor<br>
@@ -21,17 +24,21 @@ I set up a simple scene in which to conduct the tests: a spherical area light ab
 [![alt text](/assets/imgs/2012/01/light_attenuation_curves_2.png)](/assets/imgs/2012/01/light_attenuation_curves_2.png)
 
 After looking at the results from a series of tests, it became apparent that the attenuation of a spherical light can be modeled as:<br>
+{% raw %}
 $$f_{att} = \frac{1}{(\frac{d}{r} + 1)^2}$$<br>
+{% endraw %}
 where:<br>
 d = distance between the light's surface and the point being shaded<br>
 r = the light's radius<br>
 
 Expanding this out, we get:<br>
+{% raw %}
 $$f_{att} = \frac{1}{1 + \frac{2}{r}d + \frac{1}{r^2}d^2}$$<br>
 which is the original point light attenuation equation with the following attenuation factors:<br>
 $$k_c = 1 \\
 k_l = \frac{2}{r} \\
 k_q = \frac{1}{r^2}$$
+{% endraw %}
 
 Below are a couple of renders of four lights above a plane. The first is a ground-truth render of direct illumination calculated using Monte Carlo integration:
 [![alt text](/assets/imgs/2012/01/light_attenuation_montecarlo.png)](/assets/imgs/2012/01/light_attenuation_montecarlo.png)
@@ -44,10 +51,14 @@ The only noticeable difference between the two is that in the second image, an a
 Maybe this is old news to many people, but I was pretty happy to find out that an equation that had seemed fairly arbitrary to me for so many years actually had some physical motivation behind it. I don't really understand why this relationship is never pointed out, not even in [Foley and van Dam's](http://www.amazon.com/Computer-Graphics-Principles-Practice-2nd/dp/0201848406) venerable tome*.
 
 Unfortunately this attenuation model is still problematic for real-time rendering, since a light's influence is essentially unbounded. We can, however, artificially enforce a finite influence by clipping all contributions that fall below a certain threshold. Given a spherical light of radius _r_ and intensity _Li_, the illumination _I_ at distance _d_ is:<br>
+{% raw %}
 $$I = \frac{L_i}{(\frac{d}{r} + 1)^2}$$
+{% endraw %}
 
 Assuming we want to ignore all illumination that falls below some cutoff threshold _Ic_, we can solve for _d_ to find the maximum distance of the light's influence:<br>
+{% raw %}
 $$d_{max} = r(\sqrt{\frac{L_i}{I_c}}-1)$$<br>
+{% endraw %}
 
 Biasing the calculated illumination by _-Ic_ and then scaling by _1/(1-Ic)_ ensures that illumination drops to zero at the furthest extent, and the maximum illumination is unchanged.
 
@@ -73,17 +84,17 @@ vec3 DirectIllumination(vec3 P, vec3 N, vec3 lightCentre, float lightRadius, vec
     float distance = length(L);
     float d = max(distance - r, 0);
     L /= distance;
-    
+
     // calculate basic attenuation
     float denom = d/r + 1;
     float attenuation = 1 / (denom*denom);
-    
+
     // scale and bias attenuation such that:
     //   attenuation == 0 at extent of max influence
     //   attenuation == 1 when d == 0
     attenuation = (attenuation - cutoff) / (1 - cutoff);
     attenuation = max(attenuation, 0);
-    
+
     float dot = max(dot(L, N), 0);
     return lightColour * dot * attenuation;
 }
