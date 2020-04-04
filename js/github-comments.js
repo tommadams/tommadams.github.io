@@ -1,3 +1,6 @@
+// Based "Using Github comments in a Jekyll blog" by Dave Compton:
+//   https://dc25.github.io/myBlog/2017/06/24/using-github-comments-in-a-jekyll-blog.html
+
 async function showComments(repo, commentId, pageId) {
   // Fetch comments from GitHub.
   let url = `https://api.github.com/repos/${repo}/issues/${commentId}/comments?page=${pageId}`;
