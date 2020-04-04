@@ -3,7 +3,6 @@ async function showComments(repo, commentId, pageId) {
   let url = `https://api.github.com/repos/${repo}/issues/${commentId}/comments?page=${pageId}`;
   let response = await fetch(url, {
     headers: {'Accept': 'application/vnd.github.v3.html+json'},
-    mode: 'no-cors',
   });
 
   let commentList = document.getElementById('gh-comment-list');

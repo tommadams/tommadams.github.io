@@ -3,6 +3,7 @@ layout: post
 title: "Realtime global illumination"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 8
 ---
 
 I've had an idea floating around in my head for several months now, but evening classes, a hard drive failure, then a GPU failure prevented me from doing much about it until this weekend. First, a couple of screenshots of what I'll be talking about.

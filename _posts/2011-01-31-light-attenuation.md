@@ -3,6 +3,7 @@ layout: post
 title: "Light attenuation"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 6
 ---
 
 The canonical equation for point light attenuation goes something like this:

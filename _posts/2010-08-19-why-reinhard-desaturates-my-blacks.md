@@ -3,6 +3,7 @@ layout: post
 title: "Why Reinhard desaturates my blacks"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 2
 ---
 
 I'm doing it wrong.

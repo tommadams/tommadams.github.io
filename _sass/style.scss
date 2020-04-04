@@ -463,12 +463,23 @@ table {
   padding: 10px;
 }
 
+.gh-comment {
+  pre {
+    background: darken($background-color, 4%);
+    border-radius: 4px;
+    border: 1px solid #000;
+  }
+}
+
 .gh-comment-hr {
   border-top: inset 1px lighten($background-color, 50%);
   margin: 8px 0;
 }
 
-.gh-comment p { margin: 0px; }
+.gh-comment p {
+  margin: 0 0 ($spacing-unit / 2) 0;
+}
+
 .gh-comment img {
   display: inline;
   vertical-align: middle;

@@ -3,6 +3,7 @@ layout: post
 title: "4-bit random numbers"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 5
 ---
 
 While I accept that a toy 4-bit microprocessor probably isn't a subject that warrant multiple posts, I'm unable to resist. Apologies.

@@ -2,6 +2,7 @@
 layout: post
 title: "Quadrilaterals and brown trousers"
 author: Tom Madams
+gh_comment_id: 10
 ---
 
 This week at work, there was a discussion about games that had great vertigo inducing moments. The conversation was dominated by AAA titles from the last couple of years, such as Assassin's Creed, Fallout 3, and especially Uncharted 2. For me though, none of them match some of the levels from Tomb Raider. Not the any of the recent games (although I do love Crystal Dynamics' take on the series), but the original, from the now sadly defunct Core Design. You know, back when Lara steered like a tank and [advertised Lucozade](http://www.youtube.com/watch?v=0OA0iirq4vI).

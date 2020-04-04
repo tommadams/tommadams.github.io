@@ -3,6 +3,7 @@ layout: post
 title: "Why my fluids don't flow"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 3
 ---
 
 I have an unopened copy of [Digital Color Management](http://www.amazon.com/Digital-Color-Management-Wiley--Technology/dp/047051244X/ref=sr_1_1?ie=UTF8&qid=1292301078&sr=8-1) sitting on my desk. It's staring at me accusingly.

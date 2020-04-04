@@ -2,6 +2,7 @@
 layout: post
 title: "Fighting fireflies"
 author: Tom Madams
+gh_comment_id: 4
 ---
 
 I've been playing around with path tracing on and off for longer than I care to admit. Although my dalliances never produced anything earth-shattering (and certainly nothing I'd be willing to post about on [ompf](http://ompf.org/forum/)), I've found it to be an endlessly fascinating subject. No matter how much I read about it, I only ever seem to be scratching the surface.

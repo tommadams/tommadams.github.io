@@ -2,6 +2,7 @@
 layout: post
 title: "Micro computing with the GMC-4"
 author: Tom Madams
+gh_comment_id: 11
 ---
 
 "Made it! And with one and a half bytes left to spare!"

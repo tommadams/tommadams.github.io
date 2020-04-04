@@ -3,6 +3,7 @@ layout: post
 title: "Spherical harmonics, WTF?"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 9
 ---
 
 I never really "got" spherical harmonics, there was something about them that just didn't click for me. A little late to the party, I spent a few evenings recently reading over all the introductory papers I could find. Several times. This post is mostly just a brain dump, made in an effort to get everything straighted out in my head. I did stumble across a few curiosities though...

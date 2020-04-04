@@ -3,6 +3,7 @@ layout: post
 title: "Improved light attenuation"
 author: Tom Madams
 mathjax: true
+gh_comment_id: 7
 ---
 
 In my [previous post](/2011/01/31/light-attenuation.html), I talked about the attenuation curve for a spherical light source:<br>
