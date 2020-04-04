@@ -450,7 +450,6 @@ table {
   height: 100%;
 }
 
-
 #gh-comment-list {
   text-align: center;
   margin-top: $spacing-unit / 2;
@@ -463,27 +462,28 @@ table {
   border: 1px solid #000;
   margin: ($spacing-unit / 2) 0;
   padding: 10px;
-}
 
-.gh-comment {
   pre {
     background: darken($background-color, 4%);
     border-radius: 4px;
     border: 1px solid #000;
+  }
+
+  p {
+    margin: 0 0 ($spacing-unit / 2) 0;
+    &:last-child {
+      margin: 0;
+    }
+  }
+
+  img {
+    display: inline;
+    vertical-align: middle;
+    margin: 0;
   }
 }
 
 .gh-comment-hr {
   border-top: inset 1px lighten($background-color, 50%);
   margin: 8px 0;
-}
-
-.gh-comment p {
-  margin: 0 0 ($spacing-unit / 2) 0;
-}
-
-.gh-comment img {
-  display: inline;
-  vertical-align: middle;
-  margin: 0;
 }
