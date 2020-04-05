@@ -2,6 +2,10 @@
 
 @charset "utf-8";
 
+* {
+  box-sizing: border-box;
+}
+
 // Define defaults for each variable.
 
 $base-font-family:   "OpenSansRegular", "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -165,8 +169,7 @@ pre {
  * Wrapper
  */
 .wrapper {
-  max-width: -webkit-calc(#{$content-width} - (#{$spacing-unit} * 2));
-  max-width:         calc(#{$content-width} - (#{$spacing-unit} * 2));
+  max-width: $content-width;
   margin-right: auto;
   margin-left: auto;
   padding-right: $spacing-unit;
@@ -179,6 +182,7 @@ pre {
 
 .wrapper img {
   display: block;
+  width: 100%;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -202,12 +206,13 @@ pre {
  * Icons
  */
 .svg-icon {
-    width: 16px;
-    height: 16px;
-    display: inline-block;
-    fill: #{$grey-color};
-    padding-right: 5px;
-    vertical-align: text-top;
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  fill: #{$grey-color};
+  padding-right: 5px;
+  vertical-align: text-top;
+  box-sizing: content-box;
 }
 
 
@@ -486,4 +491,34 @@ table {
 .gh-comment-hr {
   border-top: inset 1px lighten($background-color, 50%);
   margin: 8px 0;
+}
+
+canvas {
+  display: block;
+  margin-bottom: $spacing-unit / 2;
+}
+
+input {
+  border: 1px solid #000;
+  border-radius: 4px;
+  background-color: #000;
+  outline: none;
+  color: #dfdfd8;
+  font-size: $base-font-size;
+}
+
+.button {
+  display: inline-block;
+  background-color: $text-color;
+  color: $background-color;
+  border-radius: 4px;
+  border: 1px solid darken($text-color, 40%);
+  padding: 4px 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.button:active {
+  background-color: darken($text-color, 20%);
+  border-color: darken($text-color, 60%);
 }
