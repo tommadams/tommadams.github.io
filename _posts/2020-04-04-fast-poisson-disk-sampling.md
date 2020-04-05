@@ -36,7 +36,6 @@ input {
 
 </style>
 
-<!--
 <div id="demo">
   <canvas id="canvas"></canvas>
   <p>spacing: <input id="spacing" type="text" value="32"/><br>
@@ -286,7 +285,6 @@ input {
 
   new Demo(canvas, canvasSize);
 </script>
--->
 
 {% endraw %}
 
