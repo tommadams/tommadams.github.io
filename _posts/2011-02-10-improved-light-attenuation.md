@@ -7,6 +7,7 @@ gh_comment_id: 7
 ---
 
 In my [previous post](/2011/01/31/light-attenuation.html), I talked about the attenuation curve for a spherical light source:<br>
+
 {% raw %}
 $$f_{att} = \frac{1}{(\frac{d}{r} + 1)^2}$$
 {% endraw %}
