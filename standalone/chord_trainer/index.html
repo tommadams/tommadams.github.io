@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+	<style type="text/css">
+		body {
+			font-family: "Open Sans";
+			font-size: 16px;
+			font-style: normal;
+			font-variant: normal;
+			font-weight: bold;
+			line-height: 30.6px;
+      margin: 0;
+
+      -webkit-user-select: none;
+              user-select: none;
+		}
+
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
+
+    input[type=checkbox] {
+      cursor: pointer;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .layout {
+      display: flex;
+      flex-direction: row;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .options-container {
+      width: 370px;
+      border-radius: 8px;
+      background-color: #ffcc57;
+    }
+    .options-container > div {
+      display: flex;
+      align-items: center;
+    }
+
+    .options-container label {
+      width: 100px;
+      text-align: right;
+      display: inline-block;
+      padding-right: 4px;
+    }
+
+    .options-container label[for=mute] {
+      cursor: pointer;
+    }
+
+    .options-container .slider {
+      width: 200px;
+      display: inline-block;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+    }
+
+    .options-container .range-val {
+      display: inline-block;
+      padding-left: 4px;
+    }
+
+    .button-container {
+      margin-top: 8px;
+      display: flex;
+    }
+
+    .button {
+      display: inline-block;
+      border-radius: 8px;
+      background-color: #9df8bb;
+      padding: 4px 20px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    #next { width: 370px; }
+
+    .qualities-container {
+      width: 130px;
+      border-radius: 8px;
+      background-color: #aaa8ff;
+      margin-left: 8px;
+    }
+
+    .qualities-container label {
+      width: 100px;
+      text-align: right;
+      display: inline-block;
+      padding-right: 4px;
+      cursor: pointer;
+    }
+
+    .answer {
+      background-color: #ffa9a1;
+      border-radius: 8px;
+      margin-top: 8px;
+      text-align: center;
+      transition: opacity 0.1s linear;
+    }
+
+	</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="layout">
+    <div class="column">
+      <div class="options-container">
+        <div>
+          <label for="volume">Volume</label>
+          <input id="volume" class="slider" type="range" name="volume" min="0" max="100" value="80"></input>
+          <span id="volume-val" class="range-val">%</span>
+        </div>
+        <div>
+          <label for="bpm">BPM</label>
+          <input id="bpm" class="slider" type="range" name="bpm" min="10" max="90" value="20"></input>
+          <span id="bpm-val" class="range-val"></span>
+        </div>
+        <div>
+          <label for="root-8ve">Root 8ve</label>
+          <input id="root-8ve" class="slider" type="range" name="root-8ve" min="-2" max="1" value="0"></input>
+          <span id="root-8ve-val" class="range-val"></span>
+        </div>
+        <div>
+          <label for="mute">Mute</label>
+          <input id="mute" type="checkbox" name="mute"></input>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <div id="next" class="button">Start</div>
+      </div>
+
+      <div id="answer" class="answer" style="opacity:0">&nbsp;</div>
+    </div>
+
+    <div class="column">
+      <div id="qualities-container" class="qualities-container"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./chord_trainer.js"></script>
+
+</body>
+</html>
