@@ -1,4 +1,4 @@
-let context;
+let ctx;
 let convolver;
 let directGain;
 let convGain;
@@ -7,7 +7,7 @@ let buffers;
 let damper;
 let sus = 0;
 let sustained = [];
-let notes;
+let notes = new Map();
 
 
 async function loadBuffers(audioDir, urls) {
@@ -16,7 +16,7 @@ async function loadBuffers(audioDir, urls) {
     promises.push(
       fetch(`${audioDir}/${url}`)
         .then(response => response.arrayBuffer())
-        .then(buf => context.decodeAudioData(buf)))
+        .then(buf => ctx.decodeAudioData(buf)))
   }
   return Promise.all(promises);
 }
@@ -29,12 +29,12 @@ function equalGain(val) {
 
 class Note {
   constructor(val) {
-    this.noteA        = context.createBufferSource();
-    this.noteB        = context.createBufferSource();
-    this.gainA        = context.createGain();
-    this.gainB        = context.createGain();
-    this.gain         = context.createGain();
-    this.biquadFilter = context.createBiquadFilter();
+    this.noteA        = ctx.createBufferSource();
+    this.noteB        = ctx.createBufferSource();
+    this.gainA        = ctx.createGain();
+    this.gainB        = ctx.createGain();
+    this.gain         = ctx.createGain();
+    this.biquadFilter = ctx.createBiquadFilter();
     this.biquadFilter.type = 'lowpass';
 
     this.biquadFilter.connect(directGain);
@@ -45,13 +45,14 @@ class Note {
     this.noteB.connect(this.gainB);
 
     if (val < 90) {
-      this.damp = context.createBufferSource();
+      this.damp = ctx.createBufferSource();
       this.damp.buffer = damper;
       this.damp.connect(directGain);
     }
   }
 
-  on(bufA, bufB, rateA, rateB, filtFreq, gain_A, gain_B, gain_) {
+  on(bufA, bufB, rateA, rateB, filtFreq, gain_A, gain_B, gain_, delay) {
+    let when = delay > 0 ? ctx.currentTime + delay : 0;
     this.noteA.buffer = buffers[bufA];
     this.noteA.playbackRate.value = rateA;
     this.biquadFilter.frequency.value = filtFreq;
@@ -62,11 +63,11 @@ class Note {
       this.noteB.buffer = buffers[bufB];
       this.noteB.playbackRate.value = rateB;
       this.gainB.gain.value = gain_B;
-      this.noteB.start(0);
+      this.noteB.start(when);
     } else {
       this.noteB = null;
     }
-    this.noteA.start(0);
+    this.noteA.start(when);
   }
 
   off(noteNumber) {
@@ -81,14 +82,15 @@ function isValidNote(noteNumber) {
 }
 
 
-export function noteOn(noteNumber, velocity) {
+export function noteOn(noteNumber, velocity, delay=0) {
   if (!isValidNote(noteNumber)) { return; }
 
-  if (notes[noteNumber]) {
-    notes[noteNumber].gain.gain.setTargetAtTime(0.0, context.currentTime, 1.1);
-    notes[noteNumber].noteA.stop(context.currentTime + 2);
-    notes[noteNumber].noteB.stop(context.currentTime + 2);
-    notes[noteNumber].damp = null;
+  let note = notes.get(noteNumber);
+  if (note) {
+    note.gain.gain.setTargetAtTime(0, 0, 1.1);
+    note.noteA.stop(ctx.currentTime + 2);
+    note.noteB.stop(ctx.currentTime + 2);
+    note.damp = null;
     sustained.splice(sustained.indexOf(noteNumber), 1);
   }
 
@@ -110,8 +112,10 @@ export function noteOn(noteNumber, velocity) {
     rate_B = Math.pow(2, (noteNumber-(noteNum+12))/12);
     gain_B = 1 - gain_A;
   }
-  notes[noteNumber] = new Note(noteNumber);
-  notes[noteNumber].on(bufNumA, bufNumB, rate_A, rate_B, filtFreq, gain_A, gain_B, gain_);
+
+  note = new Note(noteNumber)
+  note.on(bufNumA, bufNumB, rate_A, rate_B, filtFreq, gain_A, gain_B, gain_, delay);
+  notes.set(noteNumber, note);
 }
 
 
@@ -119,15 +123,25 @@ export function noteOff(noteNumber) {
   if (!isValidNote(noteNumber)) { return; }
 
   if (!sus) {
-    if (noteNumber < 90) {
-      notes[noteNumber].gain.gain.setTargetAtTime(0.0, context.currentTime + 0.03, 0.08);
-      notes[noteNumber].noteA.stop(context.currentTime + 2);
-      notes[noteNumber].noteB.stop(context.currentTime + 2);
-      notes[noteNumber].damp.start(0);
+    const DELAY = 0.03;
+    const DECAY = 0.08;
+    let note = notes.get(noteNumber);
+    if (note) {
+      notes.delete(noteNumber);
+      note.gain.gain.setTargetAtTime(0, ctx.currentTime + DELAY, DECAY);
+      note.noteA.stop(ctx.currentTime + DELAY + 5 * DECAY);
+      note.noteB.stop(ctx.currentTime + DELAY + 5 * DECAY);
+      note.damp.start(0);
     }
-    delete notes[noteNumber];
   } else {
     sustained.push(noteNumber);
+  }
+}
+
+
+export function allNotesOff() {
+  for (let noteNumber of Array.from(notes.keys())) {
+    noteOff(noteNumber);
   }
 }
 
@@ -141,32 +155,29 @@ export function sustain(val) {
     sus = false;
     convGain.gain.value = 0.0;
     convGainAfter.gain.value = 0;
-    for (let i = 0; i < sustained.length; i++) {
-      if (notes[sustained[i]]) {
-        noteOff(sustained[i]);
-      }
+    for (let noteNumber of sustained) {
+      noteOff(noteNumber);
     }
     sustained = [];
   }
 }
 
 
-export async function init(ctx, owpDir) {
-  context = ctx;
-  convolver = context.createConvolver();
-  directGain = context.createGain();
-  convGain = context.createGain();
-  convGainAfter = context.createGain();
+export async function init(audioCtx, owpDir) {
+  ctx = audioCtx;
+  convolver = ctx.createConvolver();
+  directGain = ctx.createGain();
+  convGain = ctx.createGain();
+  convGainAfter = ctx.createGain();
 
   convGain.connect(convolver);
   convolver.connect(convGainAfter);
-  convGainAfter.connect(context.destination);
-  directGain.connect(context.destination);
+  convGainAfter.connect(ctx.destination);
+  directGain.connect(ctx.destination);
   directGain.connect(convGain);
   directGain.gain.value = 0.5;
   convGain.gain.value = 0;
   convGainAfter.gain.value = 0;
-  notes = new Object();
 
   buffers = await loadBuffers(`${owpDir}/audio`, [
       'piano/21.mp3', 'piano/33.mp3', 'piano/45.mp3', 'piano/57.mp3',

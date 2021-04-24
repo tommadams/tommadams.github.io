@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+	<title>Chord trainer</title>
+
+  <!-- disable favicon requests -->
+  <link id="favicon" rel="icon" href="data:;base64,iVBORw0KGgo=">
+
 	<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Open+Sans" />
+
 	<style type="text/css">
 		body {
-			font-family: "Open Sans";
-			font-size: 16px;
-			font-style: normal;
-			font-variant: normal;
-			font-weight: bold;
-			line-height: 30.6px;
       margin: 0;
-
       -webkit-user-select: none;
               user-select: none;
 		}
 
     *, *:before, *:after {
+			font-family: "Open Sans";
+			font-size: 20px;
+			font-style: normal;
+			font-variant: normal;
+			line-height: 38px;
       box-sizing: border-box;
     }
 
     input[type=checkbox] {
+      cursor: pointer;
+    }
+
+    .pointer {
       cursor: pointer;
     }
 
@@ -43,9 +50,10 @@
     }
 
     .options-container {
-      width: 370px;
-      border-radius: 8px;
+      width: 440px;
+      border-radius: 10px;
       background-color: #ffcc57;
+      padding: 8px;
     }
     .options-container > div {
       display: flex;
@@ -53,18 +61,14 @@
     }
 
     .options-container label {
-      width: 100px;
+      width: 110px;
       text-align: right;
       display: inline-block;
-      padding-right: 4px;
-    }
-
-    .options-container label[for=mute] {
-      cursor: pointer;
+      padding-right: 10px;
     }
 
     .options-container .slider {
-      width: 200px;
+      width: 240px;
       display: inline-block;
       cursor: pointer;
       margin: 0;
@@ -73,47 +77,83 @@
 
     .options-container .range-val {
       display: inline-block;
-      padding-left: 4px;
+      padding-left: 10px;
     }
 
     .button-container {
-      margin-top: 8px;
+      margin-top: 10px;
       display: flex;
     }
 
     .button {
       display: inline-block;
-      border-radius: 8px;
+      border: 0;
+      border-radius: 10px;
       background-color: #9df8bb;
-      padding: 4px 20px;
       cursor: pointer;
       text-align: center;
     }
 
+    #begin { width: 440px; }
     #next { width: 370px; }
+    #pause {
+      margin-left: 10px;
+      width: 60px;
+    }
+
+    .play {
+      background-size: 16px;
+      background-image: url("play.svg");
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .pause {
+      background-size: 16px;
+      background-image: url("pause.svg");
+      background-position: center;
+      background-repeat: no-repeat;
+    }
 
     .qualities-container {
-      width: 130px;
-      border-radius: 8px;
+      width: 142px;
+      border-radius: 10px;
       background-color: #aaa8ff;
-      margin-left: 8px;
+      margin-left: 10px;
+      margin-bottom: 10px;
+      padding: 6px;
     }
 
     .qualities-container label {
       width: 100px;
       text-align: right;
       display: inline-block;
-      padding-right: 4px;
-      cursor: pointer;
+      padding-right: 10px;
     }
 
-    .answer {
+    #answer {
       background-color: #ffa9a1;
-      border-radius: 8px;
-      margin-top: 8px;
-      text-align: center;
+      border-radius: 10px;
+      margin-top: 10px;
       transition: opacity 0.1s linear;
     }
+
+    .answer-type {
+      font-size: 16px;
+      padding-left: 10px;
+      display: inline-block;
+      width: 70px;
+      text-align: right;
+      font-weight: bold;
+    }
+
+    .answer-value {
+      font-size: 16px;
+      padding-left: 6px;
+      display: inline-block;
+    }
+
+    .display-none { display: none; }
 
 	</style>
 </head>
@@ -126,33 +166,41 @@
         <div>
           <label for="volume">Volume</label>
           <input id="volume" class="slider" type="range" name="volume" min="0" max="100" value="80"></input>
-          <span id="volume-val" class="range-val">%</span>
+          <span id="volume-val" class="range-val"></span>%
         </div>
         <div>
           <label for="bpm">BPM</label>
-          <input id="bpm" class="slider" type="range" name="bpm" min="10" max="90" value="20"></input>
+          <input id="bpm" class="slider" type="range" name="bpm" min="10" max="90" value="15"></input>
           <span id="bpm-val" class="range-val"></span>
         </div>
         <div>
-          <label for="root-8ve">Root 8ve</label>
-          <input id="root-8ve" class="slider" type="range" name="root-8ve" min="-2" max="1" value="0"></input>
-          <span id="root-8ve-val" class="range-val"></span>
+          <label for="arpeggio">Arpeggio</label>
+          <input id="arpeggio" class="slider" type="range" name="arpeggio" min="0" max="10" value="0"></input>
+          <span id="arpeggio-val" class="range-val"></span>
         </div>
         <div>
-          <label for="mute">Mute</label>
-          <input id="mute" type="checkbox" name="mute"></input>
+          <label class="pointer" for="root-hint">Root hint</label>
+          <input id="root-hint" type="checkbox" name="root-hint"></input>
         </div>
       </div>
 
       <div class="button-container">
-        <div id="next" class="button">Start</div>
+        <button id="begin" class="button">Begin</button>
+        <button id="next" class="button display-none">Answer</button>
+        <button id="pause" class="button pause display-none"></button>
       </div>
 
-      <div id="answer" class="answer" style="opacity:0">&nbsp;</div>
+      <div id="answer" style="opacity:0">&nbsp;<br>&nbsp;</div>
     </div>
 
     <div class="column">
       <div id="qualities-container" class="qualities-container"></div>
+      <div class="qualities-container">
+        <div>
+          <label for="nine" class="pointer">9</label>
+          <input id="nine" type="checkbox" name="nine"></input>
+        </div>
+      </div>
     </div>
   </div>
 </div>
