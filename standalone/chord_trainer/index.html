@@ -15,6 +15,12 @@
               user-select: none;
 		}
 
+    /* preload images */
+    body:after{
+      position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
+      content:url("play.svg") url("pause.svg");
+    }
+
     *, *:before, *:after {
 			font-family: "Open Sans";
 			font-size: 20px;

@@ -10,13 +10,19 @@ let sustained = [];
 let notes = new Map();
 
 
+// Safari doesn't yet support the newer promise-based API for decudeAudioData.
+function decodeAudioData(buf) {
+  return new Promise((resolve, reject) => ctx.decodeAudioData(buf, resolve, reject));
+}
+
+
 async function loadBuffers(audioDir, urls) {
   let promises = [];
   for (let url of urls) {
     promises.push(
       fetch(`${audioDir}/${url}`)
         .then(response => response.arrayBuffer())
-        .then(buf => ctx.decodeAudioData(buf)))
+        .then(buf => decodeAudioData(buf)));
   }
   return Promise.all(promises);
 }

@@ -109,6 +109,26 @@ let pendingRoots = [];
 // List of pending qualities, managed by the nextQuality function.
 let pendingQualities = [];
 
+let AC = window.AudioContext || window.webkitAudioContext;
+if (AC === undefined) {
+  let container = document.createElement('div');
+  container.style.position = 'absolute';
+  container.style.left = '0';
+  container.style.top = '0';
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.justifyContent = 'center';
+  container.style.backgroundColor = '#fff';
+  let content = document.createElement('div');
+  content.innerHTML = 'Your browser does\'t support Web Audio.<br>Please check supported browsers <a href="https://caniuse.com/?search=Web%20Audio%20API">here</a>.';
+  container.appendChild(content);
+  document.body.appendChild(container);
+  throw new Error('AudioContext not defined');
+}
+
+
 
 function parseCookies() {
   let cookies = new Map();
@@ -367,7 +387,7 @@ E('begin').addEventListener('click', () => {
   E('next').classList.remove('display-none');
   E('pause').classList.remove('display-none');
 
-  audioCtx = new AudioContext();
+  audioCtx = new AC();
   owp.init(audioCtx, '../third_party/Open-Web-Piano').then(() => {
     chooseNext();
     play();
