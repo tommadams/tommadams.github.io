@@ -376,7 +376,7 @@ function updateFormation(formation, players) {
 window.addEventListener('load', () => {
   canvas = document.getElementById('canvas');
 
-  canvas.addEventListener('mousedown', (e) => {
+  let onMouseDown = (e) => {
     mouseDown = true;
     let [x, y] = transformHtmlCoords(e.clientX, e.clientY);
     if (editingFormationIdx == -1) {
@@ -387,8 +387,9 @@ window.addEventListener('load', () => {
     draw();
     e.preventDefault();
     return false;
-  });
-  canvas.addEventListener('mousemove', (e) => {
+  };
+
+  let onMouseMove = (e) => {
     let [x, y] = transformHtmlCoords(e.clientX, e.clientY);
     if (editingFormationIdx == -1) {
       if (!mouseDown) return;
@@ -403,14 +404,23 @@ window.addEventListener('load', () => {
     }
     e.preventDefault();
     return false;
-  });
-  canvas.addEventListener('mouseup', (e) => {
+  };
+
+  let onMouseUp = (e) => {
     mouseDown = false;
     selectedPlayer = null;
     draw();
     e.preventDefault();
     return false;
-  });
+  };
+
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+
+  canvas.addEventListener('touchstart', onMouseDown);
+  canvas.addEventListener('touchmove', onMouseMove);
+  canvas.addEventListener('touchend', onMouseUp);
 
   window.addEventListener('keypress', (e) => {
     let indc = document.getElementById('editing-indicator');
@@ -444,10 +454,10 @@ window.addEventListener('load', () => {
     }
   });
 
-  let selectedModeElem = document.getElementById('mode-select');
-  selectedModeElem.addEventListener('change', (e) => {
-    changeMode(e.target.selectedOptions[0].value);
-  });
+  /// let selectedModeElem = document.getElementById('mode-select');
+  /// selectedModeElem.addEventListener('change', (e) => {
+  ///   changeMode(e.target.selectedOptions[0].value);
+  /// });
 
   let numPendingImgs = 0;
   let waitForImgs = () => {
@@ -468,10 +478,10 @@ window.addEventListener('load', () => {
 
 <body>
   <canvas id="canvas"></canvas>
-  <select name="mode" id="mode-select">
+  <!--select name="mode" id="mode-select">
     <option value="attack">Attack</option>
     <option value="defense">Defense</option>
-  </select>
+  </select-->
   <div id="editing-indicator" style="display:none"></div>
 </body>
 </html> 
