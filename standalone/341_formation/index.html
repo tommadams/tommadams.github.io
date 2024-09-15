@@ -53,6 +53,11 @@ const POSITION_NAMES = [
 </script>
 <script src="formations.js"></script>
 <script>
+let imgs = {
+  jersey: 'jersey_blue.png',
+  ball: 'ball.png',
+};
+
 let S = 0;
 
 let canvas = null;
@@ -263,11 +268,6 @@ function drawPitch() {
   arc(PITCH_DIMS[0] - PENALTY_SPOT_OFS, PITCH_MID[1], CIRCLE_RADIUS, Math.PI - theta, Math.PI + theta);
   stroke();
 }
-
-let imgs = {
-  jersey: 'jersey.png',
-  ball: 'ball.png',
-};
 
 function getClosestPlayer(x, y) {
   let closest = null;
