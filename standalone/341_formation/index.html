@@ -153,7 +153,7 @@ function drawText(str, x, y, s) {
 function dumpFormations() {
   let fmt = (x) => {
     x = `${x.toFixed(2)}`;
-    if (x.length < 5) x = ' '.repeat(5 - x.length) + x;
+    if (x.length < 6) x = ' '.repeat(6 - x.length) + x;
     return x;
   };
   let lines = [];
@@ -373,12 +373,20 @@ function updateFormation(formation, players) {
   }
 }
 
+function getXy(e) {
+  let x, y;
+  if (e.changedTouches) {
+    e = e.changedTouches[0];
+  }
+  return transformHtmlCoords(e.clientX, e.clientY);
+}
+
 window.addEventListener('load', () => {
   canvas = document.getElementById('canvas');
 
   let onMouseDown = (e) => {
     mouseDown = true;
-    let [x, y] = transformHtmlCoords(e.clientX, e.clientY);
+    let [x, y] = getXy(e);
     if (editingFormationIdx == -1) {
       ballPos = [x, y];
     } else {
@@ -390,7 +398,7 @@ window.addEventListener('load', () => {
   };
 
   let onMouseMove = (e) => {
-    let [x, y] = transformHtmlCoords(e.clientX, e.clientY);
+    let [x, y] = getXy(e);
     if (editingFormationIdx == -1) {
       if (!mouseDown) return;
       ballPos = [x, y];
