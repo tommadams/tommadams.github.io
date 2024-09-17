@@ -425,14 +425,25 @@ window.addEventListener('load', () => {
   let onMouseDown = (e) => {
     mouseDown = true;
     let pos = getPos(e);
-    if (getDistance(ball, pos) < BALL_SIZE) {
-      ballHandler = null;
-      selectedObj = ball;
-      ball.x = pos.x;
-      ball.y = pos.y;
+    let player = getPlayerNearPos(pos);
+    let ballDis = getDistance(ball, pos);
+    if (player == null) {
+      if (ballDis < BALL_SIZE) {
+        selectedObj = ball;
+      }
+    } else if (getDistance(player, pos) < ballDis) {
+      selectedObj = player;
     } else {
-      selectedObj = getPlayerNearPos(pos);
+      selectedObj = ball;
     }
+
+    if (selectedObj == ball) {
+      ballHandler = null;
+    } else {
+      selectedObj = player;
+    }
+    selectedObj.x = pos.x;
+    selectedObj.y = pos.y;
     draw();
     e.preventDefault();
     return false;
