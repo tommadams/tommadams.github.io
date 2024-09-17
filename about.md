@@ -8,7 +8,7 @@ permalink: /about/
 
 Hi, I'm Tom Madams and this is my blog.
 
-I currently work at Google for their on-device machine intelligence team.
+I currently work at Sony Interactive Entertainment on their Tools & Technology group.
 
 Some of the more interesting things I've been lucky enough to work on in the past:
  - At Google:
