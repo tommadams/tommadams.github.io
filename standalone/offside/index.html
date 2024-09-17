@@ -1,7 +1,7 @@
  <!DOCTYPE html>
 <html>
 <head>
-<title>3-4-1 Formation</title>
+<title>Offside</title>
 <style>
 * {
   box-sizing: border-box;
@@ -52,10 +52,10 @@ const POSITION_NAMES = [
   'GK', 'CB', 'LB', 'RB', 'CM', 'CM', 'LW', 'RW', 'F'
 ];
 </script>
-<script src="formations.js"></script>
 <script>
 let imgs = {
-  jersey: 'jersey_blue.png',
+  blue: 'jersey_blue.png',
+  orange: 'jersey_orange.png',
   ball: 'ball.png',
 };
 
@@ -63,15 +63,28 @@ let S = 0;
 
 let canvas = null;
 let ctx = null;
-let selectedPlayer = null;
-let editingFormationIdx = -1;
-let selectedFormations = ATTACK_FORMATIONS;
-let ballPos = [PITCH_MID[0], PITCH_MID[1]];
+let selectedObj = null;
 let mouseDown = false;
+let ball = {x: PITCH_MID[0], x: PITCH_MID[1]};
+let offsideX = 0;
+let ballHandler = null;
 
+let attackers = [
+  ['LW', 7, 40, 10],
+  ['F', 9, PITCH_MID[0] - 4, PITCH_MID[1] + 3],
+];
 let players = [];
-for (let [x, y] of DEFAULT_FORMATION) {
-  players.push({x, y});
+for (let [pos, num, x, y] of attackers) {
+  players.push({x, y, num, pos, jersey: 'blue'});
+}
+let defenders = [
+  ['GK', 1, PITCH_DIMS[0] - 3, PITCH_MID[1]],
+  ['LB', 3, 70, 10],
+  ['CB', 2, 80, PITCH_MID[1]],
+  ['RB', 4, 70, PITCH_DIMS[1] - 10],
+];
+for (let [pos, num, x, y] of defenders) {
+  players.push({x, y, num, pos, jersey: 'orange'});
 }
 
 // Convert from HTML coords to pitch coord
@@ -156,23 +169,6 @@ function drawText(str, x, y, s) {
   ctx.fillText(str, x, y);
 }
 
-function dumpFormations() {
-  let fmt = (x) => {
-    x = `${x.toFixed(2)}`;
-    if (x.length < 6) x = ' '.repeat(6 - x.length) + x;
-    return x;
-  };
-  let lines = [];
-  for (let formation of selectedFormations) {
-    let row = [];
-    for (let [x, y] of formation) {
-      row.push(`[${fmt(x)}, ${fmt(y)}]`);
-    }
-    lines.push(`  [ ${row.join(', ')} ]`)
-  }
-  console.log(`${lines.join(',\n')},`);
-}
-
 function drawPitch() {
   let contentWidth = document.body.offsetWidth;
   let contentHeight = document.body.offsetHeight;
@@ -229,7 +225,7 @@ function drawPitch() {
   // Half-way line.
   moveTo(PITCH_MID[0], 0);
   lineTo(PITCH_MID[0], PITCH_DIMS[1]);
-  
+
   // Center circle.
   drawCircle(PITCH_MID[0], PITCH_MID[1], CIRCLE_RADIUS);
 
@@ -270,16 +266,14 @@ function drawPitch() {
   stroke();
 }
 
-function getClosestPlayer(x, y) {
+function getClosestPlayer(pos) {
   let closest = null;
-  let closestDisSqr = 1.0e10;
+  let closestDis = 1.0e10;
   for (let player of players) {
-    let dx = player.x - x;
-    let dy = player.y - y;
-    let disSqr = dx * dx + dy * dy;
-    if (disSqr < closestDisSqr) {
+    let dis = getDistance(player, pos);
+    if (dis < closestDis) {
       closest = player;
-      closestDisSqr = disSqr;
+      closestDis = dis;
     }
   }
   return closest;
@@ -289,37 +283,71 @@ function drawPlayers() {
   ctx.fillStyle = '#000';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  for (let i = 0; i < players.length; ++i) {
-    let player = players[i];
-    drawImage(imgs.jersey, player.x, player.y, JERSEY_SIZE);
-    drawText(`${i+1}`, player.x, player.y + 0.5, 2);
-    drawText(POSITION_NAMES[i], player.x, player.y + JERSEY_SIZE/1.4, 2);
+
+  let R = 0.8 * JERSEY_SIZE;
+  for (let player of players) {
+    ctx.fillStyle = '#000';
+    drawImage(imgs[player.jersey], player.x, player.y, JERSEY_SIZE);
+    drawText(`${player.num}`, player.x, player.y + 0.5, 2);
+    drawText(player.pos, player.x, player.y + JERSEY_SIZE/1.4, 2);
+
+    let isCandidate = ballHandler != null && player != ballHandler && player.jersey == 'blue';
+    if (isCandidate && player.x > offsideX) {
+      ctx.lineWidth = 2 * LINE_WIDTH * PIXEL_RATIO;
+      ctx.strokeStyle = '#f00';
+      beginPath();
+      drawCircle(player.x, player.y + 0.5, R);
+      let ofs = R / Math.sqrt(2);
+      moveTo(player.x + ofs, player.y + 0.5 - ofs);
+      lineTo(player.x - ofs, player.y + 0.5 + ofs);
+      stroke();
+      ctx.lineWidth = LINE_WIDTH * PIXEL_RATIO;
+    }
   }
 }
 
 function draw() {
   drawPitch();
-  if (editingFormationIdx == -1) {
-    formation = getBlendedFormation(ballPos[0], ballPos[1]);
-    selectFormation(formation);
+
+  // Offside line
+  if (ballHandler != null) {
+    offsideX = Math.max(PITCH_MID[0], ball.x);
+    for (let player of players) {
+      if (player.jersey == 'orange' && player.pos != 'GK') {
+        offsideX = Math.max(offsideX, player.x);
+      }
+    }
+
+    ctx.lineWidth = 2 * LINE_WIDTH * PIXEL_RATIO;
+    ctx.setLineDash([S, 3 * S]);
+    ctx.strokeStyle = 'rgba(255, 0, 0, 0.7)'
+    beginPath();
+    moveTo(offsideX, -BORDER);
+    lineTo(offsideX, PITCH_DIMS[1] + BORDER);
+    stroke();
+    ctx.setLineDash([]);
+    ctx.lineWidth = LINE_WIDTH * PIXEL_RATIO;
   }
+
   drawPlayers();
-  if (editingFormationIdx == -1) {
-    drawImage(imgs.ball, ballPos[0], ballPos[1], BALL_SIZE);
-  }
+  drawImage(imgs.ball, ball.x, ball.y, BALL_SIZE);
 }
 
 function onLoad() {
   draw();
 }
 
-function maybeSelectPlayer(x, y) {
-  let player = getClosestPlayer(x, y);
-  let dx = player.x - x;
-  let dy = player.y - y;
-  let dis = Math.sqrt(dx*dx + dy*dy);
-  if (dis > JERSEY_SIZE) selectedPlayer = null;
-  else selectedPlayer = player;
+function getDistance(a, b) {
+  let dx = a.x - b.x;
+  let dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getPlayerNearPos(pos) {
+  let player = getClosestPlayer(pos);
+  let dis = getDistance(player, pos);
+  if (dis > JERSEY_SIZE) return null;
+  return player;
 }
 
 function linearBlendFormations(formations, x) {
@@ -374,24 +402,36 @@ function updateFormation(formation, players) {
   }
 }
 
-function getXy(e) {
+function getPos(e) {
   let x, y;
   if (e.changedTouches) {
     e = e.changedTouches[0];
   }
-  return transformHtmlCoords(e.clientX, e.clientY);
+  [x, y] = transformHtmlCoords(e.clientX, e.clientY);
+  return {x, y};
+}
+
+function moveBallToFeet(player) {
+  ball.x = player.x + 0.8 * JERSEY_SIZE;
+  ball.y = player.y + 0.5 * BALL_SIZE;
 }
 
 window.addEventListener('load', () => {
   canvas = document.getElementById('canvas');
 
+  ballHandler = players[0];
+  moveBallToFeet(ballHandler);
+
   let onMouseDown = (e) => {
     mouseDown = true;
-    let [x, y] = getXy(e);
-    if (editingFormationIdx == -1) {
-      ballPos = [x, y];
+    let pos = getPos(e);
+    if (getDistance(ball, pos) < BALL_SIZE) {
+      ballHandler = null;
+      selectedObj = ball;
+      ball.x = pos.x;
+      ball.y = pos.y;
     } else {
-      maybeSelectPlayer(x, y);
+      selectedObj = getPlayerNearPos(pos);
     }
     draw();
     e.preventDefault();
@@ -399,25 +439,26 @@ window.addEventListener('load', () => {
   };
 
   let onMouseMove = (e) => {
-    let [x, y] = getXy(e);
-    if (editingFormationIdx == -1) {
-      if (!mouseDown) return;
-      ballPos = [x, y];
-      draw();
-    } else {
-      if (selectedPlayer == null) return;
-      selectedPlayer.x = x;
-      selectedPlayer.y = y;
-      updateFormation(selectedFormations[editingFormationIdx], players);
-      draw();
+    let pos = getPos(e);
+    if (selectedObj == null) return;
+    selectedObj.x = pos.x;
+    selectedObj.y = pos.y;
+    if (ballHandler == null &&
+        selectedObj.jersey == 'blue' &&
+        getDistance(selectedObj, ball) < JERSEY_SIZE) {
+      ballHandler = selectedObj;
     }
+    if (selectedObj == ballHandler) {
+      moveBallToFeet(ballHandler);
+    }
+    draw();
     e.preventDefault();
     return false;
   };
 
   let onMouseUp = (e) => {
     mouseDown = false;
-    selectedPlayer = null;
+    selectedObj = null;
     draw();
     e.preventDefault();
     return false;
