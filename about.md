@@ -19,14 +19,14 @@ Some of the more interesting things I've been lucky enough to work on in the pas
    - Built the Google-side data ingestion pipeline for a [collaboration][tae]
      between Google and TAE Technologies, a clean energy company working
      towards building a commercially viable plasma fusion reactor.
-   - A minor contribution to a much larger effort to
+   - A small contribution to a much larger effort to
      [automatically diagnose diabetic retinopathy][retinopathy]
      using machine learning (I wrote the tool used to annotate retina
      photographs). The corresponding research paper was named by [The Journal
      of the American Medical Association][jama-decade] as one of the ten
      most important medical papers of the decade, which was pretty cool.
-   - Spent a few years on the search infrastructure team, where I rewrote one of
-     the result ranking frameworks that had lasted from Google's early
+   - Spent a few years on the search infrastructure team, where I rewrote the
+     intra-corpus result reranking framework that had lasted from Google's early
      "10 blue links" days.
 
  - At LucasArts:
