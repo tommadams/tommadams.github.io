@@ -416,6 +416,15 @@ function moveBallToFeet(player) {
   ball.y = player.y + 0.5 * BALL_SIZE;
 }
 
+function checkBallHandler(player) {
+  if (player == null) return;
+  if (ballHandler == null &&
+      player.jersey == 'blue' &&
+      getDistance(player, ball) < JERSEY_SIZE) {
+    ballHandler = player;
+  }
+}
+
 window.addEventListener('load', () => {
   canvas = document.getElementById('canvas');
 
@@ -444,6 +453,10 @@ window.addEventListener('load', () => {
     }
     selectedObj.x = pos.x;
     selectedObj.y = pos.y;
+    checkBallHandler(selectedObj);
+    if (selectedObj == ballHandler) {
+      moveBallToFeet(ballHandler);
+    }
     draw();
     e.preventDefault();
     return false;
@@ -454,11 +467,7 @@ window.addEventListener('load', () => {
     if (selectedObj == null) return;
     selectedObj.x = pos.x;
     selectedObj.y = pos.y;
-    if (ballHandler == null &&
-        selectedObj.jersey == 'blue' &&
-        getDistance(selectedObj, ball) < JERSEY_SIZE) {
-      ballHandler = selectedObj;
-    }
+    checkBallHandler(selectedObj);
     if (selectedObj == ballHandler) {
       moveBallToFeet(ballHandler);
     }
