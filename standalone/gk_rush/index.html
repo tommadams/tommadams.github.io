@@ -1,0 +1,499 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Goalkeeper rushing</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #608031;
+}
+</style>
+
+<script>
+const BORDER = 4;
+const PITCH_DIMS = [105, 68];
+const PITCH_MID = [PITCH_DIMS[0]/2, PITCH_DIMS[1]/2];
+const AREA_DIMS = [16.5, 40.32];
+const SIX_YARD_DIMS = [5.5, 18.32];
+const PENALTY_SPOT_OFS = 11;
+const CIRCLE_RADIUS = 9.15;
+const GOAL_WIDTH = 7.32;
+const SPOT_SIZE = 0.3;
+const LINE_WIDTH = 3;
+const JERSEY_SIZE = 5;
+const BALL_SIZE = 4;
+const PIXEL_RATIO = window.devicePixelRatio | 1;
+</script>
+<script>
+let imgs = {
+  blue: 'jersey_blue.png',
+  orange: 'jersey_orange.png',
+  ball: 'ball.png',
+};
+
+let S = 0;
+
+let canvas = null;
+let ctx = null;
+let selectedObj = null;
+let mouseDown = false;
+let ball = {x: PITCH_MID[0], x: PITCH_MID[1]};
+let offsideX = 0;
+let ballHandler = null;
+let players = [];
+
+let orange = [
+  ['F', 9, PITCH_MID[0], PITCH_MID[1]],
+];
+for (let [pos, num, x, y] of orange) {
+  players.push({x, y, num, pos, team: 'orange'});
+}
+
+let blue = [
+  ['GK', 1, 3, PITCH_MID[1]],
+  ['LB', 3, 35, 10],
+  ['CB', 2, 35, PITCH_MID[1]],
+  ['RB', 4, 35, PITCH_DIMS[1] - 10],
+];
+for (let [pos, num, x, y] of blue) {
+  players.push({x, y, num, pos, team: 'blue'});
+}
+
+// Convert from HTML coords to pitch coord
+function transformHtmlCoords(x, y) {
+  x = x * PIXEL_RATIO / S - BORDER;
+  y = y * PIXEL_RATIO / S - BORDER;
+  return [x, y];
+}
+
+function transformCoords(x, y) {
+  x = (BORDER + x) * S;
+  y = (BORDER + y) * S;
+  return [x, y];
+}
+
+function transformSize(w, h) {
+  w = w * S;
+  h = h * S;
+  return [w, h];
+}
+
+function moveTo(x, y) {
+  [x, y] = transformCoords(x, y);
+  ctx.moveTo(x, y);
+}
+
+function lineTo(x, y) {
+  [x, y] = transformCoords(x, y);
+  ctx.lineTo(x, y);
+}
+
+function drawRect(x, y, w, h) {
+  let cw = canvas.width;
+  let ch = canvas.height;
+
+  [x, y] = transformCoords(x, y);
+  [w, h] = transformSize(w, h);
+
+  ctx.moveTo(x, y);     ctx.lineTo(x+w, y);
+  ctx.moveTo(x+w, y);   ctx.lineTo(x+w, y+h);
+  ctx.moveTo(x+w, y+h); ctx.lineTo(x, y+h);
+  ctx.moveTo(x, y+h);   ctx.lineTo(x, y);
+}
+
+function fillRect(x, y, w, h) {
+  let cw = canvas.width;
+  let ch = canvas.height;
+
+  [x, y] = transformCoords(x, y);
+  [w, h] = transformSize(w, h);
+
+  ctx.fillRect(x, y, w, h);
+}
+
+function drawCircle(x, y, r) {
+  [x, y] = transformCoords(x, y);
+  r *= S;
+  ctx.moveTo(x + r, y);
+  ctx.arc(x, y, r, 0, 2 * Math.PI);
+}
+
+function arc(x, y, r, begin=0, end=2*Math.PI, anticlockwise=false) {
+  [x, y] = transformCoords(x, y);
+  r *= S;
+  ctx.arc(x, y, r, begin, end, anticlockwise);
+}
+
+function beginPath() { ctx.beginPath() }
+function stroke() { ctx.stroke() }
+function fill() { ctx.fill() }
+
+function drawImage(img, x, y, s) {
+  [x, y] = transformCoords(x, y);
+  s *= S;
+  ctx.drawImage(img, x - 0.5*s, y - 0.5*s, s, s);
+}
+
+function drawText(str, x, y, s) {
+  [x, y] = transformCoords(x, y);
+  s *= S;
+  ctx.font = `${s}px sans-serif`;
+  ctx.fillText(str, x, y);
+}
+
+function drawPitch() {
+  let contentWidth = document.body.offsetWidth;
+  let contentHeight = document.body.offsetHeight;
+
+  let scale = contentWidth / (BORDER * 2 + PITCH_DIMS[0]);
+
+  let canvasRatio = (BORDER * 2 + PITCH_DIMS[0]) / (BORDER * 2 + PITCH_DIMS[1]);
+  let contentRatio = contentWidth / contentHeight;
+
+  let canvasWidth, canvasHeight;
+  if (canvasRatio > contentRatio) {
+    canvasWidth = contentWidth;
+    canvasHeight = canvasWidth / canvasRatio;
+  } else {
+    canvasHeight = contentHeight;
+    canvasWidth = canvasHeight * canvasRatio;
+  }
+
+  canvas.style.width = `${canvasWidth}px`;
+  canvas.style.height = `${canvasHeight}px`;
+  canvas.width = canvasWidth * PIXEL_RATIO;
+  canvas.height = canvasHeight * PIXEL_RATIO;
+  ctx = canvas.getContext('2d');
+
+  S = canvas.width / (BORDER * 2 + PITCH_DIMS[0]);
+  S = canvas.height / (BORDER * 2 + PITCH_DIMS[1]);
+
+  ctx.lineCap = 'round';
+
+  // Draw grass.
+  ctx.fillStyle = '#8cb441';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  let PITCH_COLS = ['#8cb441', '#83ad3d', '#7ea83a', '#77a237'];
+  let PATTERN_SIZE = 8;
+  let bx = -Math.ceil((PITCH_MID[0] + BORDER) / PATTERN_SIZE);
+  let by = -Math.ceil((PITCH_MID[1] + BORDER) / PATTERN_SIZE);
+  let ex = bx + PITCH_DIMS[0] + 2*BORDER;
+  let ey = by + PITCH_DIMS[1] + 2*BORDER;
+  for (let y = by; y < ey; ++y) {
+    for (let x = bx; x < ex; ++x) {
+      ctx.fillStyle = PITCH_COLS[((x - bx) & 1) + ((y - by) & 1) * 2];
+      fillRect(PITCH_MID[0] + x * PATTERN_SIZE, PITCH_MID[1] + y * PATTERN_SIZE, PATTERN_SIZE, PATTERN_SIZE);
+    }
+  }
+
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = LINE_WIDTH * PIXEL_RATIO;
+
+  beginPath();
+  // Pitch boundary.
+  drawRect(0, 0, PITCH_DIMS[0], PITCH_DIMS[1]);
+
+  // Half-way line.
+  moveTo(PITCH_MID[0], 0);
+  lineTo(PITCH_MID[0], PITCH_DIMS[1]);
+
+  // Center circle.
+  drawCircle(PITCH_MID[0], PITCH_MID[1], CIRCLE_RADIUS);
+
+  // 6 yard boxes.
+  drawRect(0, PITCH_MID[1] - SIX_YARD_DIMS[1] / 2, SIX_YARD_DIMS[0], SIX_YARD_DIMS[1]);
+  drawRect(PITCH_DIMS[0] - SIX_YARD_DIMS[0], PITCH_MID[1] - SIX_YARD_DIMS[1] / 2, SIX_YARD_DIMS[0], SIX_YARD_DIMS[1]);
+
+  // Penalty areas.
+  drawRect(0, PITCH_MID[1] - AREA_DIMS[1] / 2, AREA_DIMS[0], AREA_DIMS[1]);
+  drawRect(PITCH_DIMS[0] - AREA_DIMS[0], PITCH_MID[1] - AREA_DIMS[1] / 2, AREA_DIMS[0], AREA_DIMS[1]);
+  stroke();
+
+  // Goals.
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+  beginPath();
+  drawRect(0, PITCH_MID[1] - GOAL_WIDTH/2, -2, GOAL_WIDTH);
+  drawRect(PITCH_DIMS[0], PITCH_MID[1] - GOAL_WIDTH/2, 2, GOAL_WIDTH);
+  stroke();
+  fillRect(0, PITCH_MID[1] - GOAL_WIDTH/2, -2, GOAL_WIDTH);
+  fillRect(PITCH_DIMS[0], PITCH_MID[1] - GOAL_WIDTH/2, 2, GOAL_WIDTH);
+
+  // Spots.
+  ctx.fillStyle = '#fff';
+  beginPath();
+  drawCircle(PENALTY_SPOT_OFS, PITCH_MID[1], SPOT_SIZE);
+  drawCircle(PITCH_DIMS[0] - PENALTY_SPOT_OFS, PITCH_MID[1], SPOT_SIZE);
+  drawCircle(PITCH_MID[0], PITCH_MID[1], SPOT_SIZE);
+  fill();
+
+  // Penalty spot arc.
+  let theta = Math.acos((AREA_DIMS[0] - PENALTY_SPOT_OFS) / CIRCLE_RADIUS);
+  beginPath();
+  moveTo(AREA_DIMS[0], PITCH_MID[1]);
+  arc(PENALTY_SPOT_OFS, PITCH_MID[1], CIRCLE_RADIUS, -theta, theta);
+
+  moveTo(PITCH_DIMS[0] - AREA_DIMS[0], PITCH_MID[1]);
+  arc(PITCH_DIMS[0] - PENALTY_SPOT_OFS, PITCH_MID[1], CIRCLE_RADIUS, Math.PI - theta, Math.PI + theta);
+  stroke();
+}
+
+function getClosestPlayer(pos) {
+  let closest = null;
+  let closestDis = 1.0e10;
+  for (let player of players) {
+    let dis = getDistance(player, pos);
+    if (dis < closestDis) {
+      closest = player;
+      closestDis = dis;
+    }
+  }
+  return closest;
+}
+
+function drawPlayers() {
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (let player of players) {
+    ctx.fillStyle = '#000';
+    drawImage(imgs[player.team], player.x, player.y, JERSEY_SIZE);
+    drawText(`${player.num}`, player.x, player.y + 0.5, 2);
+    drawText(player.pos, player.x, player.y + JERSEY_SIZE/1.4, 2);
+  }
+}
+
+function draw() {
+  drawPitch();
+  drawPlayers();
+  drawImage(imgs.ball, ball.x, ball.y, BALL_SIZE);
+}
+
+function onLoad() {
+  draw();
+}
+
+function getDistance(a, b) {
+  let dx = a.x - b.x;
+  let dy = a.y - b.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getPlayerNearPos(pos) {
+  let player = getClosestPlayer(pos);
+  let dis = getDistance(player, pos);
+  if (dis > JERSEY_SIZE) return null;
+  return player;
+}
+
+function linearBlendFormations(formations, x) {
+  let result = [];
+
+  let xi, xf;
+  if (x < 0) {
+    xi = 0;
+    xf = 0;
+  } else if (x >= formations.length-1) {
+    xi = formations.length - 2;
+    xf = 1;
+  } else {
+    xi = x|0;
+    xf = x - xi;
+  }
+
+  let a = formations[xi];
+  let b = formations[xi + 1];
+  for (let i = 0; i < a.length; ++i) {
+    result.push([
+      (1-xf)*a[i][0] + xf*b[i][0],
+      (1-xf)*a[i][1] + xf*b[i][1],
+    ]);
+  }
+  return result;
+}
+
+function getBlendedFormation(x, y) {
+  x = x * 2 / PITCH_DIMS[0];
+  y = y * 2 / PITCH_DIMS[1];
+
+  let fs = selectedFormations;
+  fs = [
+    linearBlendFormations([fs[0], fs[1], fs[2]], x),
+    linearBlendFormations([fs[3], fs[4], fs[5]], x),
+    linearBlendFormations([fs[6], fs[7], fs[8]], x),
+  ];
+  
+  return linearBlendFormations(fs, y);
+}
+
+function selectFormation(formation) {
+  for (let i = 0; i < 9; ++i) {
+    [players[i].x, players[i].y] = formation[i];
+  }
+}
+
+function updateFormation(formation, players) {
+  for (let i = 0; i < 9; ++i) {
+    formation[i] = [players[i].x, players[i].y];
+  }
+}
+
+function getPos(e) {
+  let x, y;
+  if (e.changedTouches) {
+    e = e.changedTouches[0];
+  }
+  [x, y] = transformHtmlCoords(e.clientX, e.clientY);
+  return {x, y};
+}
+
+function moveBallToFeet(player) {
+  if (player.team == 'blue') {
+    ball.x = player.x + 0.8 * JERSEY_SIZE;
+  } else {
+    ball.x = player.x - 0.8 * JERSEY_SIZE;
+  }
+  ball.y = player.y + 0.5 * BALL_SIZE;
+}
+
+function checkBallHandler(player) {
+  if (player == null) return;
+  if (ballHandler == null &&
+      player.team == 'blue' &&
+      getDistance(player, ball) < JERSEY_SIZE) {
+    ballHandler = player;
+  }
+}
+
+window.addEventListener('load', () => {
+  canvas = document.getElementById('canvas');
+
+  ballHandler = players[0];
+  moveBallToFeet(ballHandler);
+
+  let onMouseDown = (e) => {
+    mouseDown = true;
+    let pos = getPos(e);
+    let player = getPlayerNearPos(pos);
+    let ballDis = getDistance(ball, pos);
+    if (player == null) {
+      if (ballDis < BALL_SIZE) {
+        selectedObj = ball;
+      }
+    } else if (getDistance(player, pos) < ballDis) {
+      selectedObj = player;
+    } else {
+      selectedObj = ball;
+    }
+
+    if (selectedObj == ball) {
+      ballHandler = null;
+    } else {
+      selectedObj = player;
+    }
+    selectedObj.x = pos.x;
+    selectedObj.y = pos.y;
+    checkBallHandler(selectedObj);
+    if (selectedObj == ballHandler) {
+      moveBallToFeet(ballHandler);
+    }
+    draw();
+    e.preventDefault();
+    return false;
+  };
+
+  let onMouseMove = (e) => {
+    let pos = getPos(e);
+    if (selectedObj == null) return;
+    selectedObj.x = pos.x;
+    selectedObj.y = pos.y;
+    checkBallHandler(selectedObj);
+    if (selectedObj == ballHandler) {
+      moveBallToFeet(ballHandler);
+    }
+    draw();
+    e.preventDefault();
+    return false;
+  };
+
+  let onMouseUp = (e) => {
+    mouseDown = false;
+    selectedObj = null;
+    draw();
+    e.preventDefault();
+    return false;
+  };
+
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+
+  canvas.addEventListener('touchstart', onMouseDown);
+  canvas.addEventListener('touchmove', onMouseMove);
+  canvas.addEventListener('touchend', onMouseUp);
+
+  window.addEventListener('keypress', (e) => {
+    let indc = document.getElementById('editing-indicator');
+    let switchedFormation = true;
+    switch (e.key) {
+    case 'q': editingFormationIdx = 0; break;
+    case 'w': editingFormationIdx = 1; break;
+    case 'e': editingFormationIdx = 2; break;
+    case 'a': editingFormationIdx = 3; break;
+    case 's': editingFormationIdx = 4; break;
+    case 'd': editingFormationIdx = 5; break;
+    case 'z': editingFormationIdx = 6; break;
+    case 'x': editingFormationIdx = 7; break;
+    case 'c': editingFormationIdx = 8; break;
+    default: switchedFormation = false;
+    }
+    if (switchedFormation) {
+      selectFormation(selectedFormations[editingFormationIdx]);
+      draw();
+      e.preventDefault();
+      indc.style.display = 'block';
+      return false;
+    }
+    switch (e.key) {
+      case 'Enter': dumpFormations(); break;
+      case ' ': editingFormationIdx = -1; draw(); break;
+    }
+
+    if (editingFormationIdx == -1) {
+        indc.style.display = 'none';
+    }
+  });
+
+  window.addEventListener('resize', draw);
+
+  let numPendingImgs = 0;
+  let waitForImgs = () => {
+    numPendingImgs -= 1;
+    if (numPendingImgs <= 0) {
+      onLoad();
+    }
+  };
+  for (let name in imgs) {
+    let img = new Image();
+    img.src = imgs[name];
+    imgs[name] = img;
+    img.addEventListener('load', waitForImgs);
+  }
+});
+</script>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+</body>
+</html>
+
