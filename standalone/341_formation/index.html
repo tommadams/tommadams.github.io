@@ -16,13 +16,6 @@ body {
   background-color: #608031;
 }
 
-#mode-select {
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 20px;
-}
-
 #editing-indicator {
   position: absolute;
   left: 16px;
@@ -465,11 +458,6 @@ window.addEventListener('load', () => {
 
   window.addEventListener('resize', draw);
 
-  /// let selectedModeElem = document.getElementById('mode-select');
-  /// selectedModeElem.addEventListener('change', (e) => {
-  ///   changeMode(e.target.selectedOptions[0].value);
-  /// });
-
   let numPendingImgs = 0;
   let waitForImgs = () => {
     numPendingImgs -= 1;
@@ -489,10 +477,7 @@ window.addEventListener('load', () => {
 
 <body>
   <canvas id="canvas"></canvas>
-  <!--select name="mode" id="mode-select">
-    <option value="attack">Attack</option>
-    <option value="defense">Defense</option>
-  </select-->
   <div id="editing-indicator" style="display:none"></div>
 </body>
-</html> 
+</html>
+

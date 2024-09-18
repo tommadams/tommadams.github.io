@@ -15,23 +15,6 @@ body {
   height: 100%;
   background-color: #608031;
 }
-
-#mode-select {
-  position: absolute;
-  right: 0;
-  top: 0;
-  font-size: 20px;
-}
-
-#editing-indicator {
-  position: absolute;
-  left: 16px;
-  top: 16px;
-  border-radius: 6px;
-  background-color: #d66;
-  width: 12px;
-  height: 12px;
-}
 </style>
 
 <script>
@@ -65,6 +48,8 @@ let mouseDown = false;
 let ball = {x: PITCH_MID[0], x: PITCH_MID[1]};
 let offsideX = 0;
 let ballHandler = null;
+
+let offsidePlayers = new Set();
 
 let attackers = [
   ['LW', 7, 40, 10],
@@ -288,8 +273,9 @@ function drawPlayers() {
     drawText(`${player.num}`, player.x, player.y + 0.5, 2);
     drawText(player.pos, player.x, player.y + JERSEY_SIZE/1.4, 2);
 
-    let isCandidate = ballHandler != null && player != ballHandler && player.team == 'blue';
-    if (isCandidate && player.x > offsideX) {
+    // let isCandidate = ballHandler != null && player != ballHandler && player.team == 'blue';
+    // if (isCandidate && player.x > offsideX) {
+    if (offsidePlayers.has(player)) {
       ctx.lineWidth = 2 * LINE_WIDTH * PIXEL_RATIO;
       ctx.strokeStyle = '#f00';
       beginPath();
@@ -383,7 +369,7 @@ function getBlendedFormation(x, y) {
     linearBlendFormations([fs[3], fs[4], fs[5]], x),
     linearBlendFormations([fs[6], fs[7], fs[8]], x),
   ];
-  
+
   return linearBlendFormations(fs, y);
 }
 
@@ -415,10 +401,12 @@ function moveBallToFeet(player) {
 
 function checkBallHandler(player) {
   if (player == null) return;
+  if (offsidePlayers.has(player)) return;
   if (ballHandler == null &&
       player.team == 'blue' &&
       getDistance(player, ball) < JERSEY_SIZE) {
     ballHandler = player;
+    offsidePlayers.clear();
   }
 }
 
@@ -467,6 +455,17 @@ window.addEventListener('load', () => {
     checkBallHandler(selectedObj);
     if (selectedObj == ballHandler) {
       moveBallToFeet(ballHandler);
+    }
+    if (ballHandler != null) {
+      for (let player of players) {
+        if (player != ballHandler && player.team == 'blue') {
+          if (player.x >= offsideX) {
+            offsidePlayers.add(player);
+          } else {
+            offsidePlayers.delete(player);
+          }
+        }
+      }
     }
     draw();
     e.preventDefault();
@@ -523,11 +522,6 @@ window.addEventListener('load', () => {
 
   window.addEventListener('resize', draw);
 
-  /// let selectedModeElem = document.getElementById('mode-select');
-  /// selectedModeElem.addEventListener('change', (e) => {
-  ///   changeMode(e.target.selectedOptions[0].value);
-  /// });
-
   let numPendingImgs = 0;
   let waitForImgs = () => {
     numPendingImgs -= 1;
@@ -547,10 +541,6 @@ window.addEventListener('load', () => {
 
 <body>
   <canvas id="canvas"></canvas>
-  <!--select name="mode" id="mode-select">
-    <option value="attack">Attack</option>
-    <option value="defense">Defense</option>
-  </select-->
-  <div id="editing-indicator" style="display:none"></div>
 </body>
-</html> 
+</html>
+
