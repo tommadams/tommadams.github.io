@@ -48,9 +48,6 @@ const LINE_WIDTH = 3;
 const JERSEY_SIZE = 5;
 const BALL_SIZE = 4;
 const PIXEL_RATIO = window.devicePixelRatio | 1;
-const POSITION_NAMES = [
-  'GK', 'CB', 'LB', 'RB', 'CM', 'CM', 'LW', 'RW', 'F'
-];
 </script>
 <script>
 let imgs = {
@@ -75,16 +72,16 @@ let attackers = [
 ];
 let players = [];
 for (let [pos, num, x, y] of attackers) {
-  players.push({x, y, num, pos, jersey: 'blue'});
+  players.push({x, y, num, pos, team: 'blue'});
 }
 let defenders = [
   ['GK', 1, PITCH_DIMS[0] - 3, PITCH_MID[1]],
-  ['LB', 3, 70, 10],
+  ['RB', 3, 70, 10],
   ['CB', 2, 80, PITCH_MID[1]],
-  ['RB', 4, 70, PITCH_DIMS[1] - 10],
+  ['LB', 4, 70, PITCH_DIMS[1] - 10],
 ];
 for (let [pos, num, x, y] of defenders) {
-  players.push({x, y, num, pos, jersey: 'orange'});
+  players.push({x, y, num, pos, team: 'orange'});
 }
 
 // Convert from HTML coords to pitch coord
@@ -287,11 +284,11 @@ function drawPlayers() {
   let R = 0.8 * JERSEY_SIZE;
   for (let player of players) {
     ctx.fillStyle = '#000';
-    drawImage(imgs[player.jersey], player.x, player.y, JERSEY_SIZE);
+    drawImage(imgs[player.team], player.x, player.y, JERSEY_SIZE);
     drawText(`${player.num}`, player.x, player.y + 0.5, 2);
     drawText(player.pos, player.x, player.y + JERSEY_SIZE/1.4, 2);
 
-    let isCandidate = ballHandler != null && player != ballHandler && player.jersey == 'blue';
+    let isCandidate = ballHandler != null && player != ballHandler && player.team == 'blue';
     if (isCandidate && player.x > offsideX) {
       ctx.lineWidth = 2 * LINE_WIDTH * PIXEL_RATIO;
       ctx.strokeStyle = '#f00';
@@ -313,7 +310,7 @@ function draw() {
   if (ballHandler != null) {
     offsideX = Math.max(PITCH_MID[0], ball.x);
     for (let player of players) {
-      if (player.jersey == 'orange' && player.pos != 'GK') {
+      if (player.team == 'orange' && player.pos != 'GK') {
         offsideX = Math.max(offsideX, player.x);
       }
     }
@@ -419,7 +416,7 @@ function moveBallToFeet(player) {
 function checkBallHandler(player) {
   if (player == null) return;
   if (ballHandler == null &&
-      player.jersey == 'blue' &&
+      player.team == 'blue' &&
       getDistance(player, ball) < JERSEY_SIZE) {
     ballHandler = player;
   }
