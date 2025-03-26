@@ -1,0 +1,382 @@
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Patterns</title>
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #608031;
+}
+
+#controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  color: black;
+  padding: 8px;
+  font-size: 14px;
+  font-family: sans-serif;
+  display: flex;
+  width: 100%;
+}
+
+#controls > div {
+  display: inline-block;
+  color: black;
+  margin-right: 12px;
+}
+
+#frame-num {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  min-width: 16px;
+  min-height: 16px;
+  border-radius: 8px;
+  background-color: #d7344b;
+  color: white;
+  font-family: sans-serif;
+  padding: 8px;
+}
+
+.button {
+  font-size: 24px;
+  padding: 8px;
+  border-radius: 8px;
+  user-select: none;
+  cursor: pointer;
+  background-color: rgba(0, 0, 0, 0.5);
+  min-width: 40px;
+  text-align: center;
+}
+</style>
+
+<script src="common.js"></script>
+<script src="frames.js"></script>
+
+<script>
+let frames = structuredClone(PATTERNS[0].frames);
+let frameNum = 0;
+let selectedObj = null;
+let playing = false;
+let animTime = 0;
+let prevFrameTime = null;
+let animSpeed = 0.5;
+let editing = false;
+let showOpposition = true;
+
+function refreshFrameNum() {
+  frameNum = Math.min(frameNum, frames.length - 1);
+  document.getElementById('frame-num').innerText = `${frameNum+1} / ${frames.length}`;
+}
+function newFrame(objs) {
+  playing = false;
+  frames.splice(frameNum, 0, structuredClone(objs));
+  frameNum += 1;
+  refreshFrameNum();
+  animTime = frameNum;
+  draw();
+}
+function deleteFrame() {
+  playing = false;
+  if (frames.length > 0) frames.splice(frameNum, 1);
+  refreshFrameNum();
+  animTime = frameNum;
+  draw();
+}
+
+
+function togglePlay() {
+  let button = document.getElementById('play-button');
+  playing = !playing;
+  if (playing) {
+    editing = false;
+    prevFrameTime = Date.now();
+    requestAnimationFrame(animate);
+    button.innerText = '||';
+  } else {
+    button.innerText = '>';
+  }
+}
+
+
+function dumpFrames(frames) {
+  let fmt = (obj, key) => {
+    let x = obj[key];
+    if (key == 'num' || key == 'id') return `${x}`.padStart(2);
+    if (typeof x == 'string') return `"${x}"`;
+    x = `${x.toFixed(2)}`.padStart(6);
+    return x;
+  };
+  let lines = [];
+  lines.push('[');
+  for (let frame of frames) {
+    lines.push('  [');
+    for (let obj of frame) {
+      let props = [];
+      for (let key in obj) props.push(`${key}:${fmt(obj, key)}`);
+      lines.push(`    { ${props.join(', ')} },`);
+    }
+    lines.push('  ],');
+  }
+  lines.push('];');
+  console.log(lines.join('\n'));
+}
+
+function drawObjs(objs) {
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  for (let obj of objs) {
+    if (!showOpposition && obj.img == 'orange') continue;
+
+    let size = obj.img == 'ball' ? BALL_SIZE : JERSEY_SIZE;
+    drawImage(IMGS[obj.img], obj.x, obj.y, size);
+    if (obj.num  != null) drawText(`${obj.num}`, obj.x, obj.y + 0.5, 2);
+    if (obj.name != null) drawText(obj.name, obj.x, obj.y + JERSEY_SIZE/1.4, 2);
+  }
+}
+
+function blendFrames() {
+  let aIdx = Math.min(animTime | 0, frames.length - 1);
+  let bIdx = Math.min(aIdx + 1, frames.length - 1);
+  let aObjs = frames[aIdx];
+  let bObjs = frames[bIdx];
+  let t = animTime % 1;
+  let result = [];
+  for (let i = 0; i < aObjs.length; ++i) {
+    let a = aObjs[i];
+    let b = bObjs[i];
+    let blend = structuredClone(a);
+    blend.x = (1 - t) * a.x + t * b.x;
+    blend.y = (1 - t) * a.y + t * b.y;
+    result.push(blend);
+  }
+  return result;
+}
+
+function draw() {
+  drawPitch();
+  if (editing) {
+    drawObjs(frames[frameNum]);
+  } else {
+    drawObjs(blendFrames());
+  }
+  // let controls = document.getElementById('controls');
+  // let contentWidth = document.body.offsetWidth;
+  // let canvasWidth = parseInt(canvas.style.width);
+  // controls.style.width = `${contentWidth - canvasWidth}px`;
+}
+
+function onLoad() {
+  draw();
+}
+
+function linearBlendFormations(formations, x) {
+  let result = [];
+
+  let xi, xf;
+  if (x < 0) {
+    xi = 0;
+    xf = 0;
+  } else if (x >= formations.length-1) {
+    xi = formations.length - 2;
+    xf = 1;
+  } else {
+    xi = x|0;
+    xf = x - xi;
+  }
+
+  let a = formations[xi];
+  let b = formations[xi + 1];
+  for (let i = 0; i < a.length; ++i) {
+    result.push([
+      (1-xf)*a[i][0] + xf*b[i][0],
+      (1-xf)*a[i][1] + xf*b[i][1],
+    ]);
+  }
+  return result;
+}
+
+function getBlendedFormation(x, y) {
+  x = x * 2 / PITCH_DIMS[0];
+  y = y * 2 / PITCH_DIMS[1];
+
+  let fs = selectedFormations;
+  fs = [
+    linearBlendFormations([fs[0], fs[1], fs[2]], x),
+    linearBlendFormations([fs[3], fs[4], fs[5]], x),
+    linearBlendFormations([fs[6], fs[7], fs[8]], x),
+  ];
+
+  return linearBlendFormations(fs, y);
+}
+
+function nextFrame() {
+  playing = false;
+  selectedObj = null;
+  frameNum = Math.min(frameNum + 1, frames.length - 1);
+  animTime = frameNum;
+  refreshFrameNum();
+  draw();
+}
+
+function prevFrame() {
+  playing = false;
+  selectedObj = null;
+  frameNum = Math.max(frameNum - 1, 0);
+  animTime = frameNum;
+  refreshFrameNum();
+  draw();
+}
+
+function animate() {
+  if (playing) requestAnimationFrame(animate);
+  let now = Date.now();
+  let dt = (now - prevFrameTime) / 1000;
+  prevFrameTime = now;
+
+  animTime += animSpeed * dt;
+  if (animTime >= frames.length) {
+    animTime = frames.length;
+    playing = false;
+  }
+  draw();
+
+  frameNum = Math.min(animTime|0, frames.length - 1);
+  refreshFrameNum();
+}
+
+window.addEventListener('load', () => {
+  canvas = document.getElementById('canvas');
+
+  let onMouseDown = (e) => {
+    mouseDown = true;
+    let [x, y] = getEventPos(e);
+    selectedObj = getClosestObj(frames[frameNum], x, y);
+    if (selectedObj != null && distance(selectedObj, {x, y}) > JERSEY_SIZE) {
+      selectedObj = null;
+    }
+    draw();
+    e.preventDefault();
+    return false;
+  };
+
+  let onMouseMove = (e) => {
+    let [x, y] = getEventPos(e);
+    if (selectedObj != null) {
+      selectedObj.x = x;
+      selectedObj.y = y;
+      draw();
+    }
+    e.preventDefault();
+    return false;
+  };
+
+  let onMouseUp = (e) => {
+    mouseDown = false;
+    selectedObj = null;
+    draw();
+    e.preventDefault();
+    return false;
+  };
+
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+
+  canvas.addEventListener('touchstart', onMouseDown);
+  canvas.addEventListener('touchmove', onMouseMove);
+  canvas.addEventListener('touchend', onMouseUp);
+
+  window.addEventListener('keydown', (e) => {
+    let indc = document.getElementById('editing-indicator');
+    switch (e.key) {
+    case 'ArrowLeft':  prevFrame(); break;
+    case 'ArrowRight': nextFrame(); break;
+    case 'Enter':      dumpFrames(frames); break;
+    case 'Backspace':  if (editing) deleteFrame(); break;
+    case 'n':          if (editing) newFrame(frames[frameNum]); break;
+    case ' ':          togglePlay(); break;
+    case 'e':
+      editing = !editing;
+      if (editing) playing = false;
+      document.getElementById('frame-num').style.display = editing ? 'block' : 'none';
+    }
+  });
+
+  window.addEventListener('resize', draw);
+
+  document.getElementById('prev-button').addEventListener('click', prevFrame);
+  document.getElementById('play-button').addEventListener('click', togglePlay);
+  document.getElementById('next-button').addEventListener('click', nextFrame);
+  document.getElementById('show-opposition-button').addEventListener('click', (e) => {
+    showOpposition = !showOpposition;
+    e.target.innerText = showOpposition ? 'Hide opp.' : 'Show opp.';
+    draw();
+  });
+
+  let numPendingImgs = 0;
+  let waitForImgs = () => {
+    numPendingImgs -= 1;
+    if (numPendingImgs <= 0) {
+      onLoad();
+    }
+  };
+  for (let name in IMGS) {
+    let img = new Image();
+    img.src = IMGS[name];
+    IMGS[name] = img;
+    img.addEventListener('load', waitForImgs);
+  }
+
+  let select = document.getElementById('pattern-select');
+  for (let pattern of PATTERNS) {
+    let option = document.createElement('option');
+    option.value = pattern.name;
+    option.innerText = pattern.name;
+    select.appendChild(option);
+  }
+  select.addEventListener('change', (e) => {
+    playing = false;
+    animTime = 0;
+    frameNum = 0;
+    for (let pattern of PATTERNS) {
+      if (pattern.name == e.target.value) {
+        frames = structuredClone(pattern.frames);
+        e.target.blur();
+        break;
+      }
+    }
+    refreshFrameNum();
+    draw();
+  });
+
+  refreshFrameNum();
+});
+</script>
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <div id="frame-num" style="display:none"></div>
+  <div id="controls">
+    <div id="prev-button" class="button">&lt;-</div>
+    <div id="play-button" class="button">&gt;</div>
+    <div id="next-button" class="button">-&gt;</div>
+    <div style="flex-grow:1"></div>
+    <div id="show-opposition-button" class="button">Hide opp.</div>
+    <select id="pattern-select" tabindex="-1"></select>
+  </div>
+</body>
+</html>
+
