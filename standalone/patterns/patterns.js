@@ -502,12 +502,15 @@ function swapWing(frames) {
 
 const PATTERNS = [
   { name: 'Right wing center attack', frames: RIGHT_WING_CENTER_ATTACK },
-  { name: 'Center right wing attack', frames: CENTER_RIGHT_WING_ATTACK },
-  { name: 'Right wing build out',     frames: RIGHT_WING_BUILD_OUT },
-  { name: 'Right center build out',   frames: RIGHT_CENTER_BUILD_OUT },
   { name: 'Left wing center attack',  frames: swapWing(RIGHT_WING_CENTER_ATTACK) },
+
+  { name: 'Center right wing attack', frames: CENTER_RIGHT_WING_ATTACK },
   { name: 'Center left wing attack',  frames: swapWing(CENTER_RIGHT_WING_ATTACK) },
+
+  { name: 'Right wing build out',     frames: RIGHT_WING_BUILD_OUT },
   { name: 'Left wing build out',      frames: swapWing(RIGHT_WING_BUILD_OUT) },
+
+  { name: 'Right center build out',   frames: RIGHT_CENTER_BUILD_OUT },
   { name: 'Left center build out',    frames: swapWing(RIGHT_CENTER_BUILD_OUT) },
 ];
 
