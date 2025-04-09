@@ -1,4 +1,4 @@
-const RIGHT_WING_CENTER_ATTACK =
+const RIGHT_WING_CENTER_ATTACK_1 =
 [
   [
     { id: 6, img:"blue", name:"LW", num: 5, x: 35.57, y: 11.50 },
@@ -95,6 +95,119 @@ const RIGHT_WING_CENTER_ATTACK =
     { id:13, img:"orange", name:"CB", num: 3, x: 88.49, y: 41.31 },
     { id:14, img:"orange", name:"LB", num: 4, x: 88.65, y: 49.45 },
     { id: 1, img:"ball", x:104.19, y: 36.48 },
+  ],
+];
+
+
+const RIGHT_WING_CENTER_ATTACK_2 =
+[
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 35.57, y: 11.50 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 24.43, y: 32.07 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 52.76, y: 32.11 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 36.00, y: 51.64 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 74.73, y: 32.35 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 83.29, y: 13.36 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 83.43, y: 31.93 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 83.86, y: 49.64 },
+    { id: 1, img:"ball", x: 27.71, y: 32.71 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 47.29, y: 11.50 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 31.86, y: 33.36 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 55.71, y: 32.36 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 47.14, y: 52.21 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 74.73, y: 32.35 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 83.29, y: 13.36 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 83.43, y: 31.93 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 83.86, y: 49.64 },
+    { id: 1, img:"ball", x: 35.14, y: 34.00 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 64.43, y: 21.71 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 38.14, y: 33.36 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 60.00, y: 41.14 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 51.86, y: 59.71 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 75.57, y: 33.43 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 78.43, y: 19.21 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 78.71, y: 37.21 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 72.00, y: 52.07 },
+    { id: 1, img:"ball", x: 55.43, y: 60.71 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 60.73, y: 17.87 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 41.71, y: 33.36 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 60.43, y: 42.29 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 58.43, y: 59.00 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 73.71, y: 34.14 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 74.71, y: 21.93 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 74.71, y: 43.86 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 60.33, y: 48.93 },
+    { id: 1, img:"ball", x: 61.43, y: 60.14 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 72.94, y: 20.61 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 53.41, y: 34.85 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 53.98, y: 60.41 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 78.15, y: 61.06 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 76.77, y: 40.14 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 78.88, y: 33.39 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 78.80, y: 54.31 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 67.41, y: 49.67 },
+    { id: 1, img:"ball", x: 81.49, y: 61.96 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 67.81, y: 19.74 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 57.89, y: 34.20 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 54.63, y: 59.43 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 80.59, y: 58.94 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 83.00, y: 34.29 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 75.95, y: 26.25 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 82.38, y: 52.60 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 67.49, y: 51.64 },
+    { id: 1, img:"ball", x: 57.72, y: 60.82 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 77.34, y: 16.40 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 58.54, y: 34.31 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 58.37, y: 57.07 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 82.38, y: 58.37 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 81.32, y: 35.83 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.00, y: 31.64 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 83.93, y: 26.01 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 84.50, y: 52.51 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 66.19, y: 51.29 },
+    { id: 1, img:"ball", x: 61.55, y: 35.51 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 86.29, y: 16.40 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 69.61, y: 33.90 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 68.22, y: 56.99 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 86.94, y: 55.12 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 90.68, y: 35.67 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.48, y: 36.24 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 88.65, y: 24.38 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 87.92, y: 47.79 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 73.10, y: 51.05 },
+    { id: 1, img:"ball", x: 94.10, y: 36.64 },
+  ],
+  [
+    { id: 6, img:"blue", name:"LW", num: 5, x: 90.79, y: 19.99 },
+    { id: 7, img:"blue", name:"CM", num: 6, x: 69.61, y: 33.90 },
+    { id: 8, img:"blue", name:"CM", num: 7, x: 68.22, y: 56.99 },
+    { id: 9, img:"blue", name:"RW", num: 8, x: 91.59, y: 53.23 },
+    { id:10, img:"blue", name:"FW", num: 9, x: 94.09, y: 35.87 },
+    { id:11, img:"orange", name:"GK", num: 1, x:102.48, y: 36.24 },
+    { id:12, img:"orange", name:"RB", num: 2, x: 92.84, y: 27.48 },
+    { id:13, img:"orange", name:"CB", num: 3, x: 91.13, y: 46.65 },
+    { id:14, img:"orange", name:"LB", num: 4, x: 73.10, y: 51.05 },
+    { id: 1, img:"ball", x:105.21, y: 32.70 },
   ],
 ];
 
@@ -501,8 +614,11 @@ function swapWing(frames) {
 }
 
 const PATTERNS = [
-  { name: 'Right wing center attack', frames: RIGHT_WING_CENTER_ATTACK },
-  { name: 'Left wing center attack',  frames: swapWing(RIGHT_WING_CENTER_ATTACK) },
+  { name: 'Right wing center attack 1', frames: RIGHT_WING_CENTER_ATTACK_1 },
+  { name: 'Left wing center attack 1',  frames: swapWing(RIGHT_WING_CENTER_ATTACK_1) },
+
+  { name: 'Right wing center attack 2', frames: RIGHT_WING_CENTER_ATTACK_2 },
+  { name: 'Left wing center attack 2',  frames: swapWing(RIGHT_WING_CENTER_ATTACK_2) },
 
   { name: 'Center right wing attack', frames: CENTER_RIGHT_WING_ATTACK },
   { name: 'Center left wing attack',  frames: swapWing(CENTER_RIGHT_WING_ATTACK) },
