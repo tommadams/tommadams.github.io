@@ -12,7 +12,6 @@
 
 body {
   margin: 0;
-  overflow: hidden;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -21,15 +20,19 @@ body {
   font-size: 16px;
 }
 
-#container > div {
-  resize: none;
-  flex-grow: 1;
-  flex-basis: 0;
+.text {
   color: #dfdfd8;
   margin: 12px;
   border: none;
   border-radius: 12px;
   padding: 12px;
+}
+.ab { color: hotpink; }
+
+#container > div {
+  resize: none;
+  flex-grow: 1;
+  flex-basis: 0;
 }
 #english {
   background-color: #1b1b1e;
@@ -37,9 +40,7 @@ body {
 #al-bhed {
   background-color: #26262f;
 }
-#al-bhed:focus {
-  outline: none;
-}
+#al-bhed:focus { outline: none; }
 
 #container {
   display: flex;
@@ -73,13 +74,9 @@ function a2e(a) {
   for (let c of a.split('')) {
     let isUpper = 'A' <= c && c <= 'Z';
     let isLower = 'a' <= c && c <= 'z';
-    if (isUpper) {
-      e.push(a2eMapping[c.charCodeAt(0) - 65].toUpperCase());
-    } else if (isLower) {
-      e.push(a2eMapping[c.charCodeAt(0) - 97]);
-    } else {
-      e.push(c);
-    }
+    if (isLower) c = a2eMapping[c.charCodeAt(0) - 97];
+    else if (isUpper) c = `<span class="ab">${c}</span>`;
+    e.push(c.toLowerCase());
   }
   return e.join('');
 }
@@ -91,7 +88,7 @@ addEventListener('load', () => {
   let englishChanged = false;
   let alBhedChanged = false;
   alBhed.addEventListener('input', () => {
-    english.innerText = a2e(alBhed.innerText);
+    english.innerHTML = a2e(alBhed.innerText);
   });
 });
 </script>
@@ -99,8 +96,8 @@ addEventListener('load', () => {
 
 <body>
   <div id="container">
-    <div id="al-bhed" contenteditable tabindex="0" autofocus></div>
-    <div id="english"></div>
+    <div class="text" id="al-bhed" contenteditable tabindex="0" autofocus></div>
+    <div class="text" id="english"></div>
   </div>
 </body>
 </html>
